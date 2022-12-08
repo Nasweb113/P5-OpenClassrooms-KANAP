@@ -15,19 +15,16 @@
     //once it finds the id #items, it adds the anchor 
     
     
-    function addProducts(info) {
-        
-        const imageUrl = info[0].imageUrl //access the first element in the list of URLs
-       
-        
-       const anchor = makeAnchor(imageUrl); //call the MakeAnchor and add the AppendChildren function with anchor, so it can receive the anchor info
+    function addProducts(info) {    
+    const id = info[0]._id //access the first element in the list of URLs
+    const anchor = makeAnchor(id); //call the MakeAnchor and add the AppendChildren function with anchor, so it can receive the anchor info
     AppendChildren(anchor)
       
     }
-function makeAnchor(url) { //can call it url as it doesn't matter what you call it because it local
+function makeAnchor(id) { 
     //creation of the requested <a> element 
     const anchor = document.createElement("a")  //create an element template="let/const element = document.createElement(tagName[, options]);"
-    anchor.href = url
+    anchor.href = "./product.html?id=42" +id
     return anchor
 }
 function AppendChildren(anchor)   {
