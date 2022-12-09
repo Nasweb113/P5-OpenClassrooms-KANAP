@@ -1,9 +1,6 @@
 fetch("http://localhost:3000/api/products") //using fetch to access URL (used json placeholder template)
-    .then((res) => res.json()) // 
-    .then((data) => {
-        console.log(data)
-        addProducts(data) 
-    })
+    .then((res) => res.json())
+    .then((sofa) => addProducts(sofa))
     //it fetches the info and passes by Add products-->
     //it recoveres the info from index 0 in the array 
     //it calls the makeAnchor function and calls the image url and creates the <a></a> anchor element
@@ -26,31 +23,53 @@ fetch("http://localhost:3000/api/products") //using fetch to access URL (used js
 //   "description": "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
 //   "altTxt": "Photo of a blue sofa, two seats"
     
-    function addProducts(donnes) {    
-    const id = donnes[0]._id //access the first element in the list of URLs
-    const imageUrl = donnes[0].imageUrl 
-    const altTxt = donnes[0].altTxt
-    const name = donnes[0].name
-    const description = donnes[0].description
-    
+    function addProducts(sofa) {    
+    //---->accesses the first element in the list of URLs****
+    /*
+    *const _id = sofa[0]._id 
+    *const imageUrl = sofa[0].imageUrl 
+    *const altTxt = sofa[0].altTxt
+    *const name = sofa[0].name
+    *const description = sofa[0].description
+    */
+   
+//---->loop needed, using 'forEach' over 'for' loop which will loop and create the following below for each element in the array, seems 
+//easier to use and does what I need
+    sofa.forEach((product) => {
+        console.log("sofa number", product)
+   
+
+    const { _id, imageUrl, altTxt, name, description } = product //destructuring (group all above together)    
+    //---->creates an <a> element
+    const anchor = makeAnchor(_id) 
+    //---->creates below items   
     const image = makeImage(imageUrl, altTxt)
-    const anchor = makeAnchor(id) //call the makeAnchor and add the appendChildren function with anchor, so it can receive the anchor info
     const article = makeArticle()
     const h3 = makeH3(name)
     const p = makedescription(description)
+    //---->appends the children to the document
+    appendElementsToArticle(article, image, h3, p) 
+    //---->appends to the anchor
+    appendArticleToAnchor(anchor, article)
+    })
 
-    article.appendChild(image) //append the children to the document
+
+    //---->append the children to the document
+function appendElementsToArticle(article, image, h3, p) {
+    article.appendChild(image) 
     article.appendChild(h3)
     article.appendChild(p)
-    appendChildren(anchor, article)
-    }
+}
+
+
+//---->creation of the requested <a> element 
 function makeAnchor(id) { 
-    //creation of the requested <a> element 
-    const anchor = document.createElement("a")  //create an element template="let/const element = document.createElement(tagName[, options]);"
+    const anchor = document.createElement("a")  
     anchor.href = "./product.html?id=42" +id
     return anchor
 }
-function appendChildren(anchor, article)   {
+
+function appendArticleToAnchor(anchor, article)   {
     const items = document.querySelector("#items") // ID from HTML, ID better as it is more specific
     if (items !== null) {
     items.appendChild(anchor)
@@ -66,12 +85,6 @@ function makeImage(imageUrl, altTxt) {
 }
 function makeArticle() {
     const article = document.createElement("article")
-    
-    //const p = makeP()
-    //article.appendChild(image)
-    //article.appendChild(h3)
-    //article.appendChild(p)
-    console.log(article)
     return article
    
     
@@ -89,10 +102,11 @@ function makedescription(description) {
     return p
 }
 //Notes: Many functions were created to make the code more readable and easier to understand but also to make it easier to debug and test
-
+// test in chrome devtools console, type function name. 
 
 
 //problems encountered: IN GENERAL - kept forgetting where and which when appending the children to the document
 //I had to add the anchor to the article, and then the article to the anchor fix: lines 33 and 45
 //I had to add the image to the article, and then the article to the anchor fix: line36
 //had to get the article inside the anchor fix: line 49
+    }
