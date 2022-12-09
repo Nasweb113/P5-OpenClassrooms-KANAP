@@ -30,10 +30,18 @@ fetch("http://localhost:3000/api/products") //using fetch to access URL (used js
     const id = donnes[0]._id //access the first element in the list of URLs
     const imageUrl = donnes[0].imageUrl 
     const altTxt = donnes[0].altTxt
+    const name = donnes[0].name
+    const description = donnes[0].description
+    
     const image = makeImage(imageUrl, altTxt)
     const anchor = makeAnchor(id) //call the makeAnchor and add the appendChildren function with anchor, so it can receive the anchor info
     const article = makeArticle()
+    const h3 = makeH3(name)
+    const p = makedescription(description)
+
     article.appendChild(image) //append the children to the document
+    article.appendChild(h3)
+    article.appendChild(p)
     appendChildren(anchor, article)
     }
 function makeAnchor(id) { 
@@ -58,7 +66,7 @@ function makeImage(imageUrl, altTxt) {
 }
 function makeArticle() {
     const article = document.createElement("article")
-    //const h3 = makeH3()
+    
     //const p = makeP()
     //article.appendChild(image)
     //article.appendChild(h3)
@@ -68,6 +76,19 @@ function makeArticle() {
    
     
 }
+function makeH3(name) {
+    const h3 = document.createElement("h3")
+    h3.textContent = name
+    h3.classList.add("productName")
+    return h3
+}
+function makedescription(description) {
+    const p = document.createElement("p")
+    p.textContent = description
+    p.classList.add("productDescription")
+    return p
+}
+//Notes: Many functions were created to make the code more readable and easier to understand but also to make it easier to debug and test
 
 
 
