@@ -46,7 +46,7 @@ fetch("http://localhost:3000/api/products") //using fetch to access URL (used js
     const image = makeImage(imageUrl, altTxt)
     const article = makeArticle()
     const h3 = makeH3(name)
-    const p = makedescription(description)
+    const p = makeDescription(description)
     //---->appends the children to the document
     appendElementsToArticle(article, image, h3, p) 
     //---->appends to the anchor
@@ -65,7 +65,7 @@ function appendElementsToArticle(article, image, h3, p) {
 //---->creation of the requested <a> element 
 function makeAnchor(id) { 
     const anchor = document.createElement("a")  
-    anchor.href = "./product.html?id=42" +id
+    anchor.href = "./product.html?id=" +id
     return anchor
 }
 
@@ -95,7 +95,7 @@ function makeH3(name) {
     h3.classList.add("productName")
     return h3
 }
-function makedescription(description) {
+function makeDescription(description) {
     const p = document.createElement("p")
     p.textContent = description
     p.classList.add("productDescription")
@@ -106,7 +106,7 @@ function makedescription(description) {
 
 
 //problems encountered: IN GENERAL - kept forgetting where and which when appending the children to the document
-//I had to add the anchor to the article, and then the article to the anchor fix: lines 33 and 45
-//I had to add the image to the article, and then the article to the anchor fix: line36
+//I had to add the anchor to the article, and then the article to the anchor fix: lines  and 47
+//I had to add the image to the article, and then the article to the anchor fix
 //had to get the article inside the anchor fix: line 49
     }
