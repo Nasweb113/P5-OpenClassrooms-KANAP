@@ -2,7 +2,7 @@ const str = window.location.search
 const urlParams = new URLSearchParams(str)
 const id = urlParams.get("id")
 let priceItem = 0
-let imgUrl, altText
+let imgUrl, altText, articleName
 
 
 fetch("http://localhost:3000/api/products/" + id )
@@ -22,6 +22,7 @@ function useData(sofa) {
   priceItem = price
   imgUrl = imageUrl
   altText = altTxt
+  articleName = name
   addImage(imageUrl, altTxt)
   makeTitle(name)
   addPrice(price)
@@ -84,7 +85,8 @@ function saveCart(color, quantity) {
     quantity: Number(quantity),
     price: priceItem,
     imageUrl: imgUrl, 
-    altTxt: altText
+    altTxt: altText,
+    name: articleName
   }
 localStorage.setItem(id, JSON.stringify(data))
 }
