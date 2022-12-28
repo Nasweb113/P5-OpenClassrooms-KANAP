@@ -1,7 +1,8 @@
 const str = window.location.search
 const urlParams = new URLSearchParams(str)
 const id = urlParams.get("id")
-console.log("id = " + id)
+let priceItem = 0
+let imgUrl, altText
 
 
 fetch("http://localhost:3000/api/products/" + id )
@@ -18,6 +19,9 @@ function useData(sofa) {
   const imageUrl = sofa.imageUrl
   const price = sofa.price
   const name = sofa.name
+  priceItem = price
+  imgUrl = imageUrl
+  altText = altTxt
   addImage(imageUrl, altTxt)
   makeTitle(name)
   addPrice(price)
@@ -58,106 +62,39 @@ function makeColors(colors) {
   }
 }
 
-
+// storing data in local storage to add to cart
 const button = document.querySelector("#addToCart")
-button.addEventListener("click", (e) => { 
-const color = document.querySelector("#colors").value
-const quantity = document.querySelector("#quantity").value
-if (color == null || color === "" || quantity == null || quantity === "") {
-  alert("Please select a color and quantity")
-}  
-})
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-
-
-function useData(sofa){
-const altTxt  = sofa.altTxt
-const colors = sofa.colors
-const description = sofa.description
-const imageUrl = sofa.imageUrl
-const name = sofa.name
-const price = sofa.price
-const _id = sofa._id
-addImage(imageUrl, altTxt)
-makeTitle(name)
-}
-
-function addImage(imageUrl, altTxt) {
-  const image = document.createElement("img")
+button.addEventListener("click", handleClick) 
   
-  image.src = imageUrl
-  image.alt = altTxt
-  const parent = document.querySelector(".item__img")
-  if (parent != null) parent.appendChild(image)
+
+function handleClick() {
+  const color = document.querySelector("#colors").value
+  const quantity = document.querySelector("#quantity").value
+  
+  if (isCartValid(color, quantity)) return
+  saveCart(color, quantity)
+  redirectToCart()
+  
 }
-function makeTitle(name) {
-  const h1 = document.querySelector("#title")
-  if (h1 != null)h1.textContent = name
+
+function saveCart(color, quantity) {
+  const data = {
+    id: id,
+    color: color,
+    quantity: Number(quantity),
+    price: priceItem,
+    imageUrl: imgUrl, 
+    altTxt: altText
+  }
+localStorage.setItem(id, JSON.stringify(data))
 }
-*/
+function isCartValid(color, quantity) {
+  if (color == null || color === "" || quantity == null || quantity == 0) { 
+    alert("Please select a color and quantity")
+    return true
+  }
+}
 
-
-
+function redirectToCart() {
+  window.location.href = "cart.html"
+}
