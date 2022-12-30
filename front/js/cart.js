@@ -198,8 +198,11 @@ function submitForm(e) {
   e.preventDefault() //stop the refresh of the page
   if (cart.length === 0) {
     alert("Your cart is empty")
+    return
   }
-  
+  if (isFormInvalid())return
+  if (emailIsValid()) return
+
   const body = makeRequestBody()
   fetch("http://localhost:3000/api/products/order", {
     method: "POST",
@@ -208,11 +211,32 @@ function submitForm(e) {
       "content-type": "application/json",
   }
 })
+
     .then((res) => res.json())
     .then((data) => console.log(data))
   
 }
+function emailIsValid() {
+  const email = document.querySelector("#email").value
+  const regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/
+  if (regex.test(email) === false) {
+    alert("Please fill out your email correctly (ex: example@example.com)")
+    return true
+  }
+  return false
+}
 
+function isFormInvalid() {
+  const form = document.querySelector(".cart__order__form")
+  const inputs = form.querySelectorAll("input")
+  inputs.forEach((input) => {
+    if (input.value === "") { //if a line is empty it will return error
+      alert("Please fill out all fields")
+      return true
+    }
+    return false
+  })
+}
 function makeRequestBody() {
   const form = document.querySelector(".cart__order__form")
   const firstName = form.elements.firstName.value
