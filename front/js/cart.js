@@ -4,7 +4,7 @@ for (let i = 0; i < localStorage.length; i++) {
   console.log(localStorage.getItem(localStorage.key(i)));
 }
 */
-const cart = []
+const cart = [] //global variable
 
 retrieveItemsFromCache()
 console.log(cart)
@@ -33,11 +33,30 @@ function displayItem(item) {
   const imageDiv = makeImageDiv(item) //makeImageDiv() returns a div element
   article.appendChild(imageDiv)
   
-  const cartitemcontent = makeCartContent(item)
+  const cartitemcontent = makeCartContent(item)//adding info of the item to the cart
   article.appendChild(cartitemcontent)
 
-  
+  displayTotalPrice()
+  displayTotalQuantity()
+}
 
+function displayTotalQuantity() {
+  const totalQuantity = document.querySelector("#totalQuantity")
+  let total = 0
+  cart.forEach((item) => {
+    total += item.quantity
+  })
+  totalQuantity.textContent = total
+}
+
+function displayTotalPrice() {
+  let total = 0;
+  const totalPrice = document.querySelector("#totalPrice")
+  cart.forEach((item) => {
+    const totalUnitPrice = item.price * item.quantity
+    total += totalUnitPrice
+  })
+totalPrice.textContent = total
 }
 
 
@@ -58,18 +77,30 @@ function makeSettings(item) {
   settings.classList.add("cart__item__content__settings")
 
   addQuantityToSettings(settings, item)
-  addDeleteToSettings(settings)
+  addDeleteToSettings(settings, item)
   return settings
 }
-function addDeleteToSettings(settings) {
+
+function addDeleteToSettings(settings, item) {
   const div = document.createElement("div")
   div.classList.add("cart__item__content__settings__delete")
+  div.addEventListener("click", () => deleteItem(item))
   const p = document.createElement("p")
   p.textContent = "Delete"
   div.appendChild(p)
   settings.appendChild(div)
 
 
+}
+//picking the correct item to delete matching id and color then remove item from array and local storage
+function deleteItem(item) {
+  
+  const itemToDelete = cart.findIndex((product) => product.id === item.id && product.color === item.color)
+  cart.splice(itemToDelete, 1)
+  displayTotalPrice()
+  displayTotalQuantity()
+  deleteDataFromCache(item)
+  deleteArticleFrompage(item)
 }
 function addQuantityToSettings(settings, item) {
   const quantity = document.createElement("div")
@@ -84,7 +115,36 @@ function addQuantityToSettings(settings, item) {
   input.min = "1"
   input.max = "100"
   input.value = item.quantity
-  settings.appendChild(input)
+  input.addEventListener("input", () => updateTotalPriceAndQuantity(item.id, input.value, item))
+
+  settings.appendChild(quantity)
+  quantity.appendChild(input)
+}
+//update the total price and quantity when changes are made
+function updateTotalPriceAndQuantity(id, newValue, item) {
+
+  const itemToUpdate = cart.find((item) => item.id === id)
+  itemToUpdate.quantity = Number(newValue)
+
+  displayTotalPrice()
+  displayTotalQuantity()
+  
+}
+function deleteArticleFrompage(item) {
+  const articleToDelete = document.querySelector(
+    `article[data-id="${item.id}"][data-color="${item.color}"]`)
+    console.log("deleting", articleToDelete)
+  articleToDelete.remove()
+}
+function deleteDataFromCache(item) {
+  const key = `${item.id}-${item.color}`
+  localStorage.removeItem(key)
+}
+function saveNewDataToCache(item) {
+  const dataToSave = JSON.stringify(item)
+  const key = `${item.id}-${item.color}`
+  localStorage.setItem(key, dataToSave)
+  
 }
 
 function makeDescription(item) {

@@ -77,8 +77,9 @@ function handleClick() {
   redirectToCart()
   
 }
-
+//save cart data and string interpolation to create a unique id for each color
 function saveCart(color, quantity) {
+  const key = `${id}-${color}`
   const data = {
     id: id,
     color: color,
@@ -88,7 +89,7 @@ function saveCart(color, quantity) {
     altTxt: altText,
     name: articleName
   }
-localStorage.setItem(id, JSON.stringify(data))
+localStorage.setItem(key, JSON.stringify(data))
 }
 function isCartValid(color, quantity) {
   if (color == null || color === "" || quantity == null || quantity == 0) { 
