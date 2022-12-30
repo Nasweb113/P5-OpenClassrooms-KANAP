@@ -7,10 +7,10 @@ for (let i = 0; i < localStorage.length; i++) {
 const cart = [] //global variable
 
 retrieveItemsFromCache()
-console.log(cart)
 cart.forEach((item) => displayItem(item))
 
-
+const orderButton = document.querySelector("#order")
+orderButton.addEventListener("click", (e) => submitForm(e))
 
 function retrieveItemsFromCache() {
   const numberOfItems = localStorage.length
@@ -192,4 +192,54 @@ function makeImageDiv(item) {
   image.alt = item.altTxt
   div.appendChild(image)
   return div
+}
+
+function submitForm(e) {
+  e.preventDefault() //stop the refresh of the page
+  if (cart.length === 0) {
+    alert("Your cart is empty")
+  }
+  
+  const body = makeRequestBody()
+  fetch("http://localhost:3000/api/products/order", {
+    method: "POST",
+    body: JSON.stringify(body),
+    headers: {
+      "content-type": "application/json",
+  }
+})
+    .then((res) => res.json())
+    .then((data) => console.log(data))
+  
+}
+
+function makeRequestBody() {
+  const form = document.querySelector(".cart__order__form")
+  const firstName = form.elements.firstName.value
+  const lastName = form.elements.lastName.value
+  const address = form.elements.address.value
+  const city = form.elements.city.value
+  const email = form.elements.email.value
+  const body = {
+    contact: {
+    firstName: firstName,
+    lastName: lastName,
+    address: address,
+    city: city,
+    email: email, 
+  },
+  products: getIdsFromCache()
+}
+return(body)
+}
+function getIdsFromCache() {
+  const numberOfProducts = localStorage.length
+  const ids = []
+  for (let i = 0; i < numberOfProducts; i++) {
+    const key = localStorage.key(i)
+    console.log(key)
+    const id = key.split("-")[0] //split the key to get the id split by "-"
+    ids.push(id)
+  }
+  return ids
 }
