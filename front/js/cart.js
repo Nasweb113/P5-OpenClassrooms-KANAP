@@ -133,7 +133,7 @@ function updateTotalPriceAndQuantity(id, newValue, item) {
 function deleteArticleFrompage(item) {
   const articleToDelete = document.querySelector(
     `article[data-id="${item.id}"][data-color="${item.color}"]`)
-    console.log("deleting", articleToDelete)
+    
   articleToDelete.remove()
 }
 function deleteDataFromCache(item) {
@@ -200,8 +200,9 @@ function submitForm(e) {
     alert("Your cart is empty")
     return
   }
-  if (isFormInvalid())return
+  
   if (emailIsValid()) return
+  if (isFormInvalid())return
 
   const body = makeRequestBody()
   fetch("http://localhost:3000/api/products/order", {
@@ -213,8 +214,12 @@ function submitForm(e) {
 })
 
     .then((res) => res.json())
-    .then((data) => console.log(data))
-  
+    .then((data) =>{
+      const orderId = data.orderId
+      window.location.href = "confirmation.html" + "?orderId=" + orderId
+      
+    })
+  .catch((err) => console.log(err))
 }
 function emailIsValid() {
   const email = document.querySelector("#email").value
@@ -261,7 +266,7 @@ function getIdsFromCache() {
   const ids = []
   for (let i = 0; i < numberOfProducts; i++) {
     const key = localStorage.key(i)
-    console.log(key)
+    
     const id = key.split("-")[0] //split the key to get the id split by "-"
     ids.push(id)
   }
