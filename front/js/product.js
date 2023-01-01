@@ -4,6 +4,7 @@ const id = urlParams.get("id")
 let priceItem = 0
 let imgUrl, altText, articleName
 
+//FETCHING DATA FROM API
 
 fetch("http://localhost:3000/api/products/" + id )
 
@@ -11,7 +12,7 @@ fetch("http://localhost:3000/api/products/" + id )
 .then((res) => useData(res))
 
 
-
+//COLLECTING DATA FROM API
 function useData(sofa) {
   const altTxt = sofa.altTxt
   const colors = sofa.colors
@@ -29,6 +30,7 @@ function useData(sofa) {
   addDescription(description)
   makeColors(colors)
 }
+//ADDING IMAGE TO HTML
 function addImage(imageUrl, altTxt) {
   const image = document.createElement("img") //create img element
   image.src = imageUrl //set the src attribute
@@ -36,7 +38,7 @@ function addImage(imageUrl, altTxt) {
   const parent = document.querySelector(".item__img") //find the parent element
   if (parent != null) parent.appendChild(image) //append the image to the parent
 }
-
+//CREATION OF TITLE, PRICE, DESCRIPTION AND COLORS
 function makeTitle(name) {
   const h1 = document.querySelector("#title")
   if (h1 != null) h1.textContent = name
@@ -67,7 +69,7 @@ function makeColors(colors) {
 const button = document.querySelector("#addToCart")
 button.addEventListener("click", handleClick) 
   
-
+//SAVING CART
 function handleClick() {
   const color = document.querySelector("#colors").value
   const quantity = document.querySelector("#quantity").value
@@ -91,13 +93,14 @@ function saveCart(color, quantity) {
   }
 localStorage.setItem(key, JSON.stringify(data))
 }
+//CHECKING IF CART IS VALID SO ZERO or NULL CANNOT BE ADDED TO CART
 function isCartValid(color, quantity) {
   if (color == null || color === "" || quantity == null || quantity == 0) { 
     alert("Please select a color and quantity")
     return true
   }
 }
-
+//REDIRECTING TO CART
 function redirectToCart() {
   window.location.href = "cart.html"
 }

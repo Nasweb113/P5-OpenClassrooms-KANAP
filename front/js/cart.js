@@ -39,7 +39,7 @@ function displayItem(item) {
   displayTotalPrice()
   displayTotalQuantity()
 }
-
+//TOTAL QUANTITY
 function displayTotalQuantity() {
   const totalQuantity = document.querySelector("#totalQuantity")
   let total = 0
@@ -48,7 +48,7 @@ function displayTotalQuantity() {
   })
   totalQuantity.textContent = total
 }
-
+//TOTAL PRICE
 function displayTotalPrice() {
   let total = 0;
   const totalPrice = document.querySelector("#totalPrice")
@@ -59,7 +59,7 @@ function displayTotalPrice() {
 totalPrice.textContent = total
 }
 
-
+//DISPLAY ARTICLE
 function makeCartContent(item) {
   const cardItemContent = document.createElement("div")
   cardItemContent.classList.add("cart__item__content")
@@ -72,6 +72,7 @@ function makeCartContent(item) {
   return cardItemContent
   //cardItemContent.appendChild(settings)
 }
+//DISPLAY DESCRIPTION
 function makeSettings(item) {
   const settings = document.createElement("div")
   settings.classList.add("cart__item__content__settings")
@@ -80,7 +81,7 @@ function makeSettings(item) {
   addDeleteToSettings(settings, item)
   return settings
 }
-
+//DELETE BUTTON
 function addDeleteToSettings(settings, item) {
   const div = document.createElement("div")
   div.classList.add("cart__item__content__settings__delete")
@@ -102,6 +103,7 @@ function deleteItem(item) {
   deleteDataFromCache(item)
   deleteArticleFrompage(item)
 }
+//QUANTITY
 function addQuantityToSettings(settings, item) {
   const quantity = document.createElement("div")
   quantity.classList.add("cart__item__content__settings__quantity")
@@ -130,22 +132,26 @@ function updateTotalPriceAndQuantity(id, newValue, item) {
   displayTotalQuantity()
   
 }
+//REMOVE ARTICLE FROM PAGE
 function deleteArticleFrompage(item) {
   const articleToDelete = document.querySelector(
     `article[data-id="${item.id}"][data-color="${item.color}"]`)
     
   articleToDelete.remove()
 }
+//REMOVE ARTICLE FROM CACHE
 function deleteDataFromCache(item) {
   const key = `${item.id}-${item.color}`
   localStorage.removeItem(key)
 }
+//SAVING TO CACHE
 function saveNewDataToCache(item) {
   const dataToSave = JSON.stringify(item)
   const key = `${item.id}-${item.color}`
   localStorage.setItem(key, dataToSave)
   
 }
+//DESCRIPTION OF ITEM
 
 function makeDescription(item) {
   const description = document.createElement("div")
@@ -167,13 +173,13 @@ function makeDescription(item) {
 }
 
 
-
+//DISPLAY ARTICLE
 function displayArticle(article) {
   document.querySelector("#cart__items").appendChild(article)
 
 }
 
-
+//BUILDING ARTICLE ELEMENT
 // https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/dataset - dataset is a property that returns an object containing all the data attributes of the element
 function makeArticle(item) {
   const article = document.createElement("article")
@@ -183,7 +189,7 @@ function makeArticle(item) {
   article.dataset.color = item.color
   return article
 }
-
+//BUILDING IMAGE DIV
 function makeImageDiv(item) {
   const div = document.createElement("div")
   div.classList.add("cart__item__img")
@@ -193,7 +199,7 @@ function makeImageDiv(item) {
   div.appendChild(image)
   return div
 }
-
+//SUBMIT FORM
 function submitForm(e) {
   e.preventDefault() //stop the refresh of the page
   if (cart.length === 0) {
@@ -221,6 +227,7 @@ function submitForm(e) {
     })
   .catch((err) => console.log(err))
 }
+//VALIDATING EMAIL
 function emailIsValid() {
   const email = document.querySelector("#email").value
   const regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/
@@ -230,7 +237,7 @@ function emailIsValid() {
   }
   return false
 }
-
+//VALIDATING FORM
 function isFormInvalid() {
   const form = document.querySelector(".cart__order__form")
   const inputs = form.querySelectorAll("input")
@@ -242,6 +249,7 @@ function isFormInvalid() {
     return false
   })
 }
+//MAKING REQUEST BODY
 function makeRequestBody() {
   const form = document.querySelector(".cart__order__form")
   const firstName = form.elements.firstName.value
@@ -261,6 +269,7 @@ function makeRequestBody() {
 }
 return(body)
 }
+//GETTING IDS FROM CACHE
 function getIdsFromCache() {
   const numberOfProducts = localStorage.length
   const ids = []

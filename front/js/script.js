@@ -68,7 +68,7 @@ function makeAnchor(id) {
     anchor.href = "./product.html?id=" +id
     return anchor
 }
-
+// APPENDING TO THE ANCHOR
 function appendArticleToAnchor(anchor, article)   {
     const items = document.querySelector("#items") // ID from HTML, ID better as it is more specific
     if (items !== null) {
@@ -77,30 +77,34 @@ function appendArticleToAnchor(anchor, article)   {
     console.log("object", items) //test to see if it works
 }
 }
+//CREATING IMAGE
 function makeImage(imageUrl, altTxt) {
     const image = document.createElement("img")
     image.src = imageUrl
     image.alt = altTxt
     return image
 }
+//CREATING ARTICLE
 function makeArticle() {
     const article = document.createElement("article")
     return article
    
     
 }
+//ADDING H3
 function makeH3(name) {
     const h3 = document.createElement("h3")
     h3.textContent = name
     h3.classList.add("productName")
     return h3
 }
+//ADDING DESCRIPTION
 function makeDescription(description) {
     const p = document.createElement("p")
     p.textContent = description
     p.classList.add("productDescription")
     return p
-}
+}}
 //Notes: Many functions were created to make the code more readable and easier to understand but also to make it easier to debug and test
 // test in chrome devtools console, type function name. 
 
@@ -108,5 +112,4 @@ function makeDescription(description) {
 //problems encountered: IN GENERAL - kept forgetting where and which when appending the children to the document
 //I had to add the anchor to the article, and then the article to the anchor fix: lines  and 47
 //I had to add the image to the article, and then the article to the anchor fix
-//had to get the article inside the anchor fix: line 49
-    }
+//had to get the article inside the anchor fix: line 49}
