@@ -4,7 +4,9 @@ for (let i = 0; i < localStorage.length; i++) {
   console.log(localStorage.getItem(localStorage.key(i)));
 }
 */
-const cart = [] //global variable
+
+// using RegEX to validate the form
+const cart = []
 
 retrieveItemsFromCache()
 cart.forEach((item) => displayItem(item))
@@ -14,65 +16,48 @@ orderButton.addEventListener("click", (e) => submitForm(e))
 
 function retrieveItemsFromCache() {
   const numberOfItems = localStorage.length
-  for(let i = 0; i < numberOfItems; i++) {
+  for (let i = 0; i < numberOfItems; i++) {
     const item = localStorage.getItem(localStorage.key(i)) || ""
     const itemObject = JSON.parse(item)
-    cart.push(itemObject) //JSON.parse() converts a string into a JavaScript object
-    
+    cart.push(itemObject)
+  }
 }
-}
-
-
-/******DISPLAY****** */
-
 
 function displayItem(item) {
-  const article = makeArticle(item) // makeArticle() returns an article element
-  displayArticle(article)
-  
-  const imageDiv = makeImageDiv(item) //makeImageDiv() returns a div element
+  const article = makeArticle(item)
+  const imageDiv = makeImageDiv(item)
   article.appendChild(imageDiv)
-  
-  const cartitemcontent = makeCartContent(item)//adding info of the item to the cart
-  article.appendChild(cartitemcontent)
-
-  displayTotalPrice()
+  const cardItemContent = makeCartContent(item)
+  article.appendChild(cardItemContent)
+  displayArticle(article)
   displayTotalQuantity()
+  displayTotalPrice()
 }
-//TOTAL QUANTITY
+
 function displayTotalQuantity() {
   const totalQuantity = document.querySelector("#totalQuantity")
-  let total = 0
-  cart.forEach((item) => {
-    total += item.quantity
-  })
+  const total = cart.reduce((total, item) => total + item.quantity, 0)
   totalQuantity.textContent = total
 }
-//TOTAL PRICE
+
 function displayTotalPrice() {
-  let total = 0;
   const totalPrice = document.querySelector("#totalPrice")
-  cart.forEach((item) => {
-    const totalUnitPrice = item.price * item.quantity
-    total += totalUnitPrice
-  })
-totalPrice.textContent = total
+  const total = cart.reduce((total, item) => total + item.price * item.quantity, 0)
+  totalPrice.textContent = total
 }
 
-//DISPLAY ARTICLE
 function makeCartContent(item) {
   const cardItemContent = document.createElement("div")
   cardItemContent.classList.add("cart__item__content")
 
   const description = makeDescription(item)
   const settings = makeSettings(item)
-  
+
   cardItemContent.appendChild(description)
   cardItemContent.appendChild(settings)
   return cardItemContent
-  //cardItemContent.appendChild(settings)
 }
-//DISPLAY DESCRIPTION
+
 function makeSettings(item) {
   const settings = document.createElement("div")
   settings.classList.add("cart__item__content__settings")
@@ -81,34 +66,39 @@ function makeSettings(item) {
   addDeleteToSettings(settings, item)
   return settings
 }
-//DELETE BUTTON
+
 function addDeleteToSettings(settings, item) {
   const div = document.createElement("div")
   div.classList.add("cart__item__content__settings__delete")
   div.addEventListener("click", () => deleteItem(item))
+
   const p = document.createElement("p")
-  p.textContent = "Delete"
+  p.textContent = "Supprimer"
   div.appendChild(p)
   settings.appendChild(div)
-
-
 }
-//picking the correct item to delete matching id and color then remove item from array and local storage
 function deleteItem(item) {
-  
-  const itemToDelete = cart.findIndex((product) => product.id === item.id && product.color === item.color)
+  const itemToDelete = cart.findIndex(
+    (product) => product.id === item.id && product.color === item.color
+  )
   cart.splice(itemToDelete, 1)
   displayTotalPrice()
   displayTotalQuantity()
   deleteDataFromCache(item)
-  deleteArticleFrompage(item)
+  deleteArticleFromPage(item)
 }
-//QUANTITY
+function deleteArticleFromPage(item) {
+  const articleToDelete = document.querySelector(
+    `article[data-id="${item.id}"][data-color="${item.color}"]`
+  )
+  articleToDelete.remove()
+}
+
 function addQuantityToSettings(settings, item) {
   const quantity = document.createElement("div")
   quantity.classList.add("cart__item__content__settings__quantity")
   const p = document.createElement("p")
-  p.textContent = "Quantity : "
+  p.textContent = "Qty : "
   quantity.appendChild(p)
   const input = document.createElement("input")
   input.type = "number"
@@ -117,41 +107,31 @@ function addQuantityToSettings(settings, item) {
   input.min = "1"
   input.max = "100"
   input.value = item.quantity
-  input.addEventListener("input", () => updateTotalPriceAndQuantity(item.id, input.value, item))
+  input.addEventListener("input", () => updatePriceAndQuantity(item.id, input.value, item))
 
-  settings.appendChild(quantity)
   quantity.appendChild(input)
+  settings.appendChild(quantity)
 }
-//update the total price and quantity when changes are made
-function updateTotalPriceAndQuantity(id, newValue, item) {
 
+function updatePriceAndQuantity(id, newValue, item) {
   const itemToUpdate = cart.find((item) => item.id === id)
   itemToUpdate.quantity = Number(newValue)
-
-  displayTotalPrice()
+  item.quantity = itemToUpdate.quantity
   displayTotalQuantity()
-  
+  displayTotalPrice()
+  saveNewDataToCache(item)
 }
-//REMOVE ARTICLE FROM PAGE
-function deleteArticleFrompage(item) {
-  const articleToDelete = document.querySelector(
-    `article[data-id="${item.id}"][data-color="${item.color}"]`)
-    
-  articleToDelete.remove()
-}
-//REMOVE ARTICLE FROM CACHE
+
 function deleteDataFromCache(item) {
   const key = `${item.id}-${item.color}`
   localStorage.removeItem(key)
 }
-//SAVING TO CACHE
+
 function saveNewDataToCache(item) {
   const dataToSave = JSON.stringify(item)
   const key = `${item.id}-${item.color}`
   localStorage.setItem(key, dataToSave)
-  
 }
-//DESCRIPTION OF ITEM
 
 function makeDescription(item) {
   const description = document.createElement("div")
@@ -159,97 +139,170 @@ function makeDescription(item) {
 
   const h2 = document.createElement("h2")
   h2.textContent = item.name
-
   const p = document.createElement("p")
   p.textContent = item.color
-
-  const price = document.createElement("p")
-  price.textContent = item.price + "€"
+  const p2 = document.createElement("p")
+  p2.textContent = item.price + " €"
 
   description.appendChild(h2)
   description.appendChild(p)
-  description.appendChild(price)
+  description.appendChild(p2)
   return description
 }
 
-
-//DISPLAY ARTICLE
 function displayArticle(article) {
   document.querySelector("#cart__items").appendChild(article)
-
 }
-
-//BUILDING ARTICLE ELEMENT
-// https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/dataset - dataset is a property that returns an object containing all the data attributes of the element
 function makeArticle(item) {
   const article = document.createElement("article")
-  
-  article.classList.add("cart__item")
+  article.classList.add("card__item")
   article.dataset.id = item.id
   article.dataset.color = item.color
   return article
 }
-//BUILDING IMAGE DIV
 function makeImageDiv(item) {
   const div = document.createElement("div")
   div.classList.add("cart__item__img")
+
   const image = document.createElement("img")
   image.src = item.imageUrl
   image.alt = item.altTxt
   div.appendChild(image)
   return div
 }
-//SUBMIT FORM
+
 function submitForm(e) {
-  e.preventDefault() //stop the refresh of the page
+  e.preventDefault()
   if (cart.length === 0) {
-    alert("Your cart is empty")
+    alert("Please select items to buy")
     return
   }
-  
-  if (emailIsValid()) return
-  if (isFormInvalid())return
+
+  if (isFormInvalid()) return
+  if (isEmailInvalid()) return
 
   const body = makeRequestBody()
   fetch("http://localhost:3000/api/products/order", {
     method: "POST",
     body: JSON.stringify(body),
     headers: {
-      "content-type": "application/json",
-  }
-})
-
+      "Content-Type": "application/json"
+    }
+  })
     .then((res) => res.json())
-    .then((data) =>{
+    .then((data) => {
       const orderId = data.orderId
       window.location.href = "confirmation.html" + "?orderId=" + orderId
-      
+      return console.log(data)
     })
-  .catch((err) => console.log(err))
+    //show an error if page doesn't load
+    .catch((err) => console.error(err))
 }
-//VALIDATING EMAIL
-function emailIsValid() {
+
+function isEmailInvalid() {
   const email = document.querySelector("#email").value
-  const regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/
+  const regex = /^[A-Za-z0-9+_.-]+@(.+)$/
   if (regex.test(email) === false) {
-    alert("Please fill out your email correctly (ex: example@example.com)")
+    alert("Please enter valid email")
     return true
   }
   return false
 }
-//VALIDATING FORM
+
 function isFormInvalid() {
   const form = document.querySelector(".cart__order__form")
   const inputs = form.querySelectorAll("input")
   inputs.forEach((input) => {
-    if (input.value === "") { //if a line is empty it will return error
-      alert("Please fill out all fields")
+    if (input.value === "") {
+      alert("Please fill all the fields")
       return true
     }
     return false
   })
 }
+function getForm() {
+  const form = document.querySelector(".cart__order__form");
+  
+  let emailRegExp = new RegExp("^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$");
+  let charRegExp = new RegExp("^[a-zA-Z]+$");
+  let addressRegExp = new RegExp("^[a-zA-Z0-9 ]+$");
+
+  form.firstName.addEventListener('change', function() {
+    validFirstName(this);
+  });
+  form.lastName.addEventListener('change', function() {
+    validLastName(this);
+  });
+  form.address.addEventListener('change', function() {
+    validAddress(this);
+  });
+  form.city.addEventListener('change', function() {
+    validCity(this);
+  });
+  form.email.addEventListener('change', function() {
+    validEmail(this);
+  });
+  // Name validation
+  const validFirstName = function(inputFirstName) {
+    let firstNameErrorMessage = inputFirstName.nextElementSibling;
+    if (charRegExp.test(inputFirstName.value)) {
+      firstNameErrorMessage.innerHTML = "";
+      
+    } else {
+      firstNameErrorMessage.innerHTML = "Please enter a valid first name";
+      
+    }
+  };
+      //surname validation
+      const validLastName = function(inputLastName) {
+        let lastNameErrorMsg = inputLastName.nextElementSibling;
+
+        if (charRegExp.test(inputLastName.value)) {
+            lastNameErrorMsg.innerHTML = '';
+        } else {
+            lastNameErrorMsg.innerHTML = 'Please enter a valid last name';
+        }
+    };
+
+    //address validation
+    const validAddress = function(inputAddress) {
+        let addressErrorMsg = inputAddress.nextElementSibling;
+
+        if (addressRegExp.test(inputAddress.value)) {
+            addressErrorMsg.innerHTML = '';
+        } else {
+            addressErrorMsg.innerHTML = 'Please enter a valid address';
+        }
+    };
+
+    //city validation
+    const validCity = function(inputCity) {
+        let cityErrorMsg = inputCity.nextElementSibling;
+
+        if (charRegExp.test(inputCity.value)) {
+            cityErrorMsg.innerHTML = '';
+        } else {
+            cityErrorMsg.innerHTML = 'Please enter a valid city';
+        }
+    };
+
+    //email validation
+    const validEmail = function(inputEmail) {
+        let emailErrorMsg = inputEmail.nextElementSibling;
+
+        if (emailRegExp.test(inputEmail.value)) {
+            emailErrorMsg.innerHTML = '';
+        } else {
+            emailErrorMsg.innerHTML = 'Please enter a valid email';
+        }
+        
+    };
+    return(form);
+    }
+    getIdsFromCache()
+
 //MAKING REQUEST BODY
+
 function makeRequestBody() {
   const form = document.querySelector(".cart__order__form")
   const firstName = form.elements.firstName.value
