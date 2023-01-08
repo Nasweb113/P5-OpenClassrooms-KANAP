@@ -10,10 +10,10 @@ const cart = []
 
 retrieveItemsFromCache()
 cart.forEach((item) => displayItem(item))
-
+//ACCESSING THE ORDER BUTTON and passing the e (pass this (e) in the form submit function as an arguement)
 const orderButton = document.querySelector("#order")
 orderButton.addEventListener("click", (e) => submitForm(e))
-
+//Get the items from the cache using the getitem
 function retrieveItemsFromCache() {
   const numberOfItems = localStorage.length
   for (let i = 0; i < numberOfItems; i++) {
@@ -22,7 +22,7 @@ function retrieveItemsFromCache() {
     cart.push(itemObject)
   }
 }
-
+//What needs to be displayed, create functions for total quantity and price
 function displayItem(item) {
   const article = makeArticle(item)
   const imageDiv = makeImageDiv(item)
@@ -33,19 +33,19 @@ function displayItem(item) {
   displayTotalQuantity()
   displayTotalPrice()
 }
-
+//DISPLAYING THE TOTAL QUANTITY ON THE PAGE
 function displayTotalQuantity() {
   const totalQuantity = document.querySelector("#totalQuantity")
   const total = cart.reduce((total, item) => total + item.quantity, 0)
   totalQuantity.textContent = total
 }
-
+//DISPLAYING THE TOTAL PRICE ON THE PAGE
 function displayTotalPrice() {
   const totalPrice = document.querySelector("#totalPrice")
   const total = cart.reduce((total, item) => total + item.price * item.quantity, 0)
   totalPrice.textContent = total
 }
-
+//FUNCTION CREATING THE CONTENT ON THE CART PAGE BY CREATING AN ELEMENT DIV
 function makeCartContent(item) {
   const cardItemContent = document.createElement("div")
   cardItemContent.classList.add("cart__item__content")
@@ -57,7 +57,7 @@ function makeCartContent(item) {
   cardItemContent.appendChild(settings)
   return cardItemContent
 }
-
+//AS PER HTML, CREATE SETTINGS
 function makeSettings(item) {
   const settings = document.createElement("div")
   settings.classList.add("cart__item__content__settings")
@@ -66,7 +66,7 @@ function makeSettings(item) {
   addDeleteToSettings(settings, item)
   return settings
 }
-
+//CREATE DELETE BUTTON
 function addDeleteToSettings(settings, item) {
   const div = document.createElement("div")
   div.classList.add("cart__item__content__settings__delete")
@@ -87,13 +87,14 @@ function deleteItem(item) {
   deleteDataFromCache(item)
   deleteArticleFromPage(item)
 }
+//DELETING THE ARTICLE
 function deleteArticleFromPage(item) {
   const articleToDelete = document.querySelector(
     `article[data-id="${item.id}"][data-color="${item.color}"]`
   )
   articleToDelete.remove()
 }
-
+//CREATING AND APPENDING OF THE REQUIRED ELEMENTS
 function addQuantityToSettings(settings, item) {
   const quantity = document.createElement("div")
   quantity.classList.add("cart__item__content__settings__quantity")
@@ -112,7 +113,7 @@ function addQuantityToSettings(settings, item) {
   quantity.appendChild(input)
   settings.appendChild(quantity)
 }
-
+//UPDAYE OF TOTALS
 function updatePriceAndQuantity(id, newValue, item) {
   const itemToUpdate = cart.find((item) => item.id === id)
   itemToUpdate.quantity = Number(newValue)
@@ -121,18 +122,18 @@ function updatePriceAndQuantity(id, newValue, item) {
   displayTotalPrice()
   saveNewDataToCache(item)
 }
-
+//REMOVING DELETED ITEM FROM CACHE
 function deleteDataFromCache(item) {
   const key = `${item.id}-${item.color}`
   localStorage.removeItem(key)
 }
-
+//SAVE DATA TO CACHE
 function saveNewDataToCache(item) {
   const dataToSave = JSON.stringify(item)
   const key = `${item.id}-${item.color}`
   localStorage.setItem(key, dataToSave)
 }
-
+//CREATING OF THE ITEM DESCRIPTION AND ELEMENTS
 function makeDescription(item) {
   const description = document.createElement("div")
   description.classList.add("cart__item__content__description")
@@ -149,10 +150,11 @@ function makeDescription(item) {
   description.appendChild(p2)
   return description
 }
-
+//DISPLAYING THE ARTICLE AND APPENDING
 function displayArticle(article) {
   document.querySelector("#cart__items").appendChild(article)
 }
+//CREATING OF a
 function makeArticle(item) {
   const article = document.createElement("article")
   article.classList.add("card__item")
@@ -160,6 +162,7 @@ function makeArticle(item) {
   article.dataset.color = item.color
   return article
 }
+//CREATING IMG DIV
 function makeImageDiv(item) {
   const div = document.createElement("div")
   div.classList.add("cart__item__img")
@@ -170,7 +173,7 @@ function makeImageDiv(item) {
   div.appendChild(image)
   return div
 }
-
+//SUBMITTING THE FORM AND PASSING IN THE EVENT (E) FROM TOP OF PAGE
 function submitForm(e) {
   e.preventDefault()
   if (cart.length === 0) {
@@ -180,14 +183,14 @@ function submitForm(e) {
 
   if (isFormInvalid()) return
   if (isEmailInvalid()) return
-
+//USE 'POST' NOT 'GET' AS WE ARE NOT RETRIEVING INFO, WE ARE SENDING TO THE SERVER,  AND ADD AN OBJECT 
   const body = makeRequestBody()
   fetch("http://localhost:3000/api/products/order", {
     method: "POST",
     body: JSON.stringify(body),
     headers: {
       "Content-Type": "application/json"
-    }
+    }//SHOWING 404 ERROR, MISSED THE 'PRODUCTS IN THE HTTP --FIXED!
   })
     .then((res) => res.json())
     .then((data) => {
@@ -198,7 +201,7 @@ function submitForm(e) {
     //show an error if page doesn't load
     .catch((err) => console.error(err))
 }
-
+//VERIFY THE EMAIL IS CORRECT USING REGEX
 function isEmailInvalid() {
   const email = document.querySelector("#email").value
   const regex = /^[A-Za-z0-9+_.-]+@(.+)$/
@@ -208,7 +211,7 @@ function isEmailInvalid() {
   }
   return false
 }
-
+//CHECK FORM IS FILLED IN CORRECTLY
 function isFormInvalid() {
   const form = document.querySelector(".cart__order__form")
   const inputs = form.querySelectorAll("input")
@@ -220,6 +223,9 @@ function isFormInvalid() {
     return false
   })
 }
+//MAKING AN ERROR APPEAR BELOW THE LINE USING EVENT LISTENERS, REGEX, IF, ELSE CONDITIONAL STATEMENTS
+//THAT IF IT IS EMPTY THEN DISPLAY MESSAGE AND REGEX TEST
+/*MDN ***The test() method executes a search for a match between a regular expression and a specified string. Returns true or false.*/
 function getForm() {
   const form = document.querySelector(".cart__order__form");
   
@@ -302,7 +308,7 @@ function getForm() {
     getIdsFromCache()
 
 //MAKING REQUEST BODY
-
+//RECOVERS ORDER ID FOR CONFIRMATION PAGE
 function makeRequestBody() {
   const form = document.querySelector(".cart__order__form")
   const firstName = form.elements.firstName.value
@@ -322,7 +328,10 @@ function makeRequestBody() {
 }
 return(body)
 }
-//GETTING IDS FROM CACHE
+//I CREATED THE ABOVE PREVIOUSLY FOR THE CLIENT FORM, BUT WITH AN ALERT NOT BELOW THE FIELD, AFTER REMOVING IT THE ORDER NUMBER WOULD NOT SHOW ON THE NEXT PAGE, ONCE MODIFIED AND REPLACED IT WORKS, SO I LEAVE IT LIKE THAT FOR NOW. 
+
+
+//GETTING IDS FROM CACHE AND BREAK UP THE ORDER NUMBER  
 function getIdsFromCache() {
   const numberOfProducts = localStorage.length
   const ids = []
