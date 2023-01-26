@@ -104,8 +104,7 @@ function saveCart(color, quantity) {
   const data = {
     id: id,
     color: color,
-    quantity: Number(quantity), //NUMBER SO IT DOESNT APPEAR AS A STRING
-    price: priceItem,
+    quantity: Number(quantity),
     imageUrl: imgUrl, 
     altTxt: altText,
     name: articleName

@@ -1,345 +1,266 @@
-/* The following function iterates over the local storage keys and gets the value set for each key:
-use .length to find the number of items
-for (let i = 0; i < localStorage.length; i++) {
-  console.log(localStorage.getItem(localStorage.key(i)));
-}
-*/
+let cartItems = []
 
-// using RegEX to validate the form
-const cart = []
-
-retrieveItemsFromCache()
-cart.forEach((item) => displayItem(item))
-//ACCESSING THE ORDER BUTTON and passing the e (pass this (e) in the form submit function as an arguement)
-const orderButton = document.querySelector("#order")
-orderButton.addEventListener("click", (e) => submitForm(e))
-//Get the items from the cache using the getitem
 function retrieveItemsFromCache() {
-  const numberOfItems = localStorage.length
-  for (let i = 0; i < numberOfItems; i++) {
-    const item = localStorage.getItem(localStorage.key(i)) || ""
-    const itemObject = JSON.parse(item)
-    cart.push(itemObject)
-  }
-}
-//What needs to be displayed, create functions for total quantity and price
-function displayItem(item) {
-  const article = makeArticle(item)
-  const imageDiv = makeImageDiv(item)
-  article.appendChild(imageDiv)
-  const cardItemContent = makeCartContent(item)
-  article.appendChild(cardItemContent)
-  displayArticle(article)
-  displayTotalQuantity()
-  displayTotalPrice()
-}
-//DISPLAYING THE TOTAL QUANTITY ON THE PAGE
-function displayTotalQuantity() {
-  const totalQuantity = document.querySelector("#totalQuantity")
-  const total = cart.reduce((total, item) => total + item.quantity, 0)
-  totalQuantity.textContent = total
-}
-//DISPLAYING THE TOTAL PRICE ON THE PAGE
-function displayTotalPrice() {
-  const totalPrice = document.querySelector("#totalPrice")
-  const total = cart.reduce((total, item) => total + item.price * item.quantity, 0)
-  totalPrice.textContent = total
-}
-//FUNCTION CREATING THE CONTENT ON THE CART PAGE BY CREATING AN ELEMENT DIV
-function makeCartContent(item) {
-  const cardItemContent = document.createElement("div")
-  cardItemContent.classList.add("cart__item__content")
+  const divCart = document.getElementById("cart__items")
 
-  const description = makeDescription(item)
-  const settings = makeSettings(item)
 
-  cardItemContent.appendChild(description)
-  cardItemContent.appendChild(settings)
-  return cardItemContent
-}
-//AS PER HTML, CREATE SETTINGS
-function makeSettings(item) {
-  const settings = document.createElement("div")
-  settings.classList.add("cart__item__content__settings")
+  let keys = Object.keys(localStorage)
+  let i = keys.length
 
-  addQuantityToSettings(settings, item)
-  addDeleteToSettings(settings, item)
-  return settings
-}
-//CREATE DELETE BUTTON
-function addDeleteToSettings(settings, item) {
-  const div = document.createElement("div")
-  div.classList.add("cart__item__content__settings__delete")
-  div.addEventListener("click", () => deleteItem(item))
-
-  const p = document.createElement("p")
-  p.textContent = "Supprimer"
-  div.appendChild(p)
-  settings.appendChild(div)
-}
-function deleteItem(item) {
-  const itemToDelete = cart.findIndex(
-    (product) => product.id === item.id && product.color === item.color
-  )
-  cart.splice(itemToDelete, 1)
-  displayTotalPrice()
-  displayTotalQuantity()
-  deleteDataFromCache(item)
-  deleteArticleFromPage(item)
-}
-//DELETING THE ARTICLE
-function deleteArticleFromPage(item) {
-  const articleToDelete = document.querySelector(
-    `article[data-id="${item.id}"][data-color="${item.color}"]`
-  )
-  articleToDelete.remove()
-}
-//CREATING AND APPENDING OF THE REQUIRED ELEMENTS
-function addQuantityToSettings(settings, item) {
-  const quantity = document.createElement("div")
-  quantity.classList.add("cart__item__content__settings__quantity")
-  const p = document.createElement("p")
-  p.textContent = "Qty : "
-  quantity.appendChild(p)
-  const input = document.createElement("input")
-  input.type = "number"
-  input.classList.add("itemQuantity")
-  input.name = "itemQuantity"
-  input.min = "1"
-  input.max = "100"
-  input.value = item.quantity
-  input.addEventListener("input", () => updatePriceAndQuantity(item.id, input.value, item))
-
-  quantity.appendChild(input)
-  settings.appendChild(quantity)
-}
-//UPDAYE OF TOTALS
-function updatePriceAndQuantity(id, newValue, item) {
-  const itemToUpdate = cart.find((item) => item.id === id)
-  itemToUpdate.quantity = Number(newValue)
-  item.quantity = itemToUpdate.quantity
-  displayTotalQuantity()
-  displayTotalPrice()
-  saveNewDataToCache(item)
-}
-//REMOVING DELETED ITEM FROM CACHE
-function deleteDataFromCache(item) {
-  const key = `${item.id}-${item.color}`
-  localStorage.removeItem(key)
-}
-//SAVE DATA TO CACHE
-function saveNewDataToCache(item) {
-  const dataToSave = JSON.stringify(item)
-  const key = `${item.id}-${item.color}`
-  localStorage.setItem(key, dataToSave)
-}
-//CREATING OF THE ITEM DESCRIPTION AND ELEMENTS
-function makeDescription(item) {
-  const description = document.createElement("div")
-  description.classList.add("cart__item__content__description")
-
-  const h2 = document.createElement("h2")
-  h2.textContent = item.name
-  const p = document.createElement("p")
-  p.textContent = item.color
-  const p2 = document.createElement("p")
-  p2.textContent = item.price + " €"
-
-  description.appendChild(h2)
-  description.appendChild(p)
-  description.appendChild(p2)
-  return description
-}
-//DISPLAYING THE ARTICLE AND APPENDING
-function displayArticle(article) {
-  document.querySelector("#cart__items").appendChild(article)
-}
-//CREATING OF a
-function makeArticle(item) {
-  const article = document.createElement("article")
-  article.classList.add("card__item")
-  article.dataset.id = item.id
-  article.dataset.color = item.color
-  return article
-}
-//CREATING IMG DIV
-function makeImageDiv(item) {
-  const div = document.createElement("div")
-  div.classList.add("cart__item__img")
-
-  const image = document.createElement("img")
-  image.src = item.imageUrl
-  image.alt = item.altTxt
-  div.appendChild(image)
-  return div
-}
-//SUBMITTING THE FORM AND PASSING IN THE EVENT (E) FROM TOP OF PAGE
-function submitForm(e) {
-  e.preventDefault()
-  if (cart.length === 0) {
-    alert("Please select items to buy")
-    return
+  while(i--){
+    const key = keys[i]
+    const item = JSON.parse(localStorage.getItem(key))
+    cartItems.push(item)
   }
 
-  if (isFormInvalid()) return
-  if (isEmailInvalid()) return
-//USE 'POST' NOT 'GET' AS WE ARE NOT RETRIEVING INFO, WE ARE SENDING TO THE SERVER,  AND ADD AN OBJECT 
-  const body = makeRequestBody()
-  fetch("http://localhost:3000/api/products/order", {
-    method: "POST",
-    body: JSON.stringify(body),
-    headers: {
-      "Content-Type": "application/json"
-    }//SHOWING 404 ERROR, MISSED THE 'PRODUCTS IN THE HTTP --FIXED!
-  })
-    .then((res) => res.json())
-    .then((data) => {
-      const orderId = data.orderId
-      window.location.href = "confirmation.html" + "?orderId=" + orderId
-      return console.log(data)
-    })
-    //show an error if page doesn't load
-    .catch((err) => console.error(err))
-}
-//VERIFY THE EMAIL IS CORRECT USING REGEX
-function isEmailInvalid() {
-  const email = document.querySelector("#email").value
-  const regex = /^[A-Za-z0-9+_.-]+@(.+)$/
-  if (regex.test(email) === false) {
-    alert("Please enter valid email")
-    return true
-  }
-  return false
-}
-//CHECK FORM IS FILLED IN CORRECTLY
-function isFormInvalid() {
-  const form = document.querySelector(".cart__order__form")
-  const inputs = form.querySelectorAll("input")
-  inputs.forEach((input) => {
-    if (input.value === "") {
-      alert("Please fill all the fields")
-      return true
-    }
-    return false
-  })
-}
-//MAKING AN ERROR APPEAR BELOW THE LINE USING EVENT LISTENERS, REGEX, IF, ELSE CONDITIONAL STATEMENTS
-//THAT IF IT IS EMPTY THEN DISPLAY MESSAGE AND REGEX TEST
-/*MDN ***The test() method executes a search for a match between a regular expression and a specified string. Returns true or false.*/
-function getForm() {
-  const form = document.querySelector(".cart__order__form");
+ cartItems.forEach(async(item) => {
+  let price;
+  // get unique product
+  const res = await fetch("http://localhost:3000/api/products/"+ item.id )
+  const data = await res.json()
+  price = data.price
   
-  let emailRegExp = new RegExp("^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$");
+  // display product details
+  divCart.innerHTML += `
+  <article class="cart__item" data-id=${item.id} data-color=${item.color}>
+            <div class="cart__item__img">
+              <img src=${item.imageUrl} alt="Photo of a sofa">
+            </div>
+            <div class="cart__item__content">
+              <div class="cart__item__content__description">
+                <h2>${item.name}</h2>
+                <p>${item.color}</p>
+                <p>${"€"+price}</p>
+              </div>
+              <div class="cart__item__content__settings">
+                <div class="cart__item__content__settings__quantity">
+                  <input type="number" class="itemQuantity" id=${item.id} onchange="changeQuantity(event)" name="itemQuantity" min="1" max="100" value=${item.quantity}>
+                </div>
+                <div class="cart__item__content__settings__delete">
+                <p class="deleteItem" id=${item.id} onclick="deleteItem(event)">Delete</p>
+                  
+                </div>
+              </div>
+            </div>
+          </article> 
+`
+ });
+}
+
+// load carts
+ retrieveItemsFromCache()
+// delete item
+ const deleteItem = (event)=>{
+  event.preventDefault()//prevents reload the browser on change
+  const id = event.target.id
+
+  const findItem = cartItems.find((item)=>item.id === id)
+
+  const key = `${id}-${findItem.color}`
+
+  // remove item from localstorage
+  localStorage.removeItem(key)
+  location.reload()
+ }
+// update quantity
+const changeQuantity = (event)=>{
+  event.preventDefault()//prevents reload the browser on change
+  const newQty = event.target.value
+  
+  const id = event.target.id
+  
+  const findItem = cartItems.find((item)=>item.id === id)
+  const newItem = {...findItem, quantity: parseInt(newQty)}
+  
+  const key = `${id}-${newItem.color}`
+
+  // update localstorage
+  localStorage.setItem(key, JSON.stringify(newItem))
+  location.reload()
+ }
+// calculate the total
+(()=>{
+  const total = document.getElementById("totalPrice")
+  const qtyTotal = document.querySelector("#totalQuantity")
+  console.log(qtyTotal)
+  let totalAmount = 0
+  let totalQuantity = 0
+  cartItems.forEach(async(item)=>{
+    const res = await fetch("http://localhost:3000/api/products/"+ item.id )
+    const data = await res.json()
+
+    totalAmount += data.price * item.quantity
+    console.log("total", totalAmount)
+    total.innerHTML = totalAmount 
+    
+    totalQuantity += item.quantity
+    qtyTotal.innerHTML = totalQuantity
+    
+    console.log("totalQuant", totalQuantity)
+console.log(qtyTotal)
+
+  })
+})()
+
+
+  
+
+
+  //Calcul de la quantité totale des articles sélectionés
+   //Calcul de la quantité totale des articles sélectionés
+
+   //Calcul de la quantité totale des articles sélectionés
+
+
+
+
+/*
+function getCart() {
+  let cart = localStorage.getItem("cart");
+console.log(cart)
+  if (cart == null) {
+    return [];
+  } else {
+    return JSON.parse(cart);
+  }
+}
+
+function removeFromCart(item) {
+  let cart = getCart();
+  cart = cart.filter((p) => p.id_color != item.id);
+  saveCart(cart);
+}
+
+function addEvents() {
+  //delete button
+  const buttons = document.querySelector(".deleteItem");
+  buttons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      itemDeleted(btn.closest("article").getAttribute("data-id"));
+    });
+  });
+}
+  */
+//ERRORS FOR FORM COMPLETION IF INCORRECT :
+
+
+function getForm() {
+    let form = document.querySelector(".cart__order__form");
+    let mail = new RegExp('^[a-zA-Z0-9.-_]+[@]{1}[a-zA-Z0-9.-_]+[.]{1}[a-z]{2,10}$');
   let charRegExp = new RegExp("^[a-zA-Z]+$");
   let addressRegExp = new RegExp("^[a-zA-Z0-9 ]+$");
 
-  form.firstName.addEventListener('change', function() {
-    validFirstName(this);
-  });
-  form.lastName.addEventListener('change', function() {
-    validLastName(this);
-  });
-  form.address.addEventListener('change', function() {
-    validAddress(this);
-  });
-  form.city.addEventListener('change', function() {
-    validCity(this);
-  });
-  form.email.addEventListener('change', function() {
-    validEmail(this);
-  });
-  // Name validation
-  const validFirstName = function(inputFirstName) {
-    let firstNameErrorMessage = inputFirstName.nextElementSibling;
-    if (charRegExp.test(inputFirstName.value)) {
-      firstNameErrorMessage.innerHTML = "";
-      
-    } else {
-      firstNameErrorMessage.innerHTML = "Please enter a valid first name";
-      
-    }
-  };
-      //surname validation
-      const validLastName = function(inputLastName) {
-        let lastNameErrorMsg = inputLastName.nextElementSibling;
+    // Ecoute des modifications des éléments du form:
+    form.firstName.addEventListener('change', function () {
+        validFirstName(this);
+    });
+    form.lastName.addEventListener('change', function () {
+        validLastName(this);
+    });
+    form.address.addEventListener('change', function () {
+        validAddress(this);
+    });
+    form.city.addEventListener('change', function () {
+        validCity(this);
+    });
+    form.email.addEventListener('change', function () {
+        validEmail(this);
+    });
 
+    // Validating the form:
+    const validFirstName = function (inputFirstName) {
+        let firstNameAlertError = inputFirstName.nextElementSibling;
+        if (charRegExp.test(inputFirstName.value)) {
+            firstNameAlertError.innerHTML = '';
+        } else {
+            firstNameAlertError.innerHTML = 'Invalid First Name';
+        }
+    };
+    const validLastName = function (inputLastName) {
+        let lastNameAlertError = inputLastName.nextElementSibling;
         if (charRegExp.test(inputLastName.value)) {
-            lastNameErrorMsg.innerHTML = '';
+            lastNameAlertError.innerHTML = '';
         } else {
-            lastNameErrorMsg.innerHTML = 'Please enter a valid last name';
+            lastNameAlertError.innerHTML = 'Invalid Last Name';
         }
     };
-
-    //address validation
+     //address validation
     const validAddress = function(inputAddress) {
-        let addressErrorMsg = inputAddress.nextElementSibling;
+      let addressErrorMsg = inputAddress.nextElementSibling;
 
-        if (addressRegExp.test(inputAddress.value)) {
-            addressErrorMsg.innerHTML = '';
-        } else {
-            addressErrorMsg.innerHTML = 'Please enter a valid address';
-        }
-    };
+      if (addressRegExp.test(inputAddress.value)) {
+          addressErrorMsg.innerHTML = '';
+      } else {
+          addressErrorMsg.innerHTML = 'Please enter a valid address';
+      }
+  };
 
-    //city validation
-    const validCity = function(inputCity) {
-        let cityErrorMsg = inputCity.nextElementSibling;
+  //city validation
+  const validCity = function(inputCity) {
+      let cityErrorMsg = inputCity.nextElementSibling;
 
-        if (charRegExp.test(inputCity.value)) {
-            cityErrorMsg.innerHTML = '';
-        } else {
-            cityErrorMsg.innerHTML = 'Please enter a valid city';
-        }
-    };
+      if (charRegExp.test(inputCity.value)) {
+          cityErrorMsg.innerHTML = '';
+      } else {
+          cityErrorMsg.innerHTML = 'Please enter a valid city';
+      }
+  };
 
-    //email validation
-    const validEmail = function(inputEmail) {
-        let emailErrorMsg = inputEmail.nextElementSibling;
-
-        if (emailRegExp.test(inputEmail.value)) {
-            emailErrorMsg.innerHTML = '';
-        } else {
-            emailErrorMsg.innerHTML = 'Please enter a valid email';
-        }
-        
-    };
-    return(form);
+  const validEmail = function (inputEmail) {
+    let emailAlertError = inputEmail.nextElementSibling;
+    if (mail.test(inputEmail.value)) {
+        emailAlertError.innerHTML = '';
+    } else {
+        emailAlertError.innerHTML = 'Email invalid';
     }
-    getIdsFromCache()
-
-//MAKING REQUEST BODY
-//RECOVERS ORDER ID FOR CONFIRMATION PAGE
-function makeRequestBody() {
-  const form = document.querySelector(".cart__order__form")
-  const firstName = form.elements.firstName.value
-  const lastName = form.elements.lastName.value
-  const address = form.elements.address.value
-  const city = form.elements.city.value
-  const email = form.elements.email.value
-  const body = {
-    contact: {
-    firstName: firstName,
-    lastName: lastName,
-    address: address,
-    city: city,
-    email: email, 
-  },
-  products: getIdsFromCache()
+    };
 }
-return(body)
-}
-//I CREATED THE ABOVE PREVIOUSLY FOR THE CLIENT FORM, BUT WITH AN ALERT NOT BELOW THE FIELD, AFTER REMOVING IT THE ORDER NUMBER WOULD NOT SHOW ON THE NEXT PAGE, ONCE MODIFIED AND REPLACED IT WORKS, SO I LEAVE IT LIKE THAT FOR NOW. 
+getForm();
+// recovery of the elements 
+function postForm() {
+    let inputFirstName = document.getElementById('firstName');
+    let inputLastName = document.getElementById('lastName');
+    let inputAddress = document.getElementById('address');
+    let inputCity = document.getElementById('city');
+    let inputMail = document.getElementById('email');
 
+    let idProducts = [];
+    for (let i = 0; i < produitLocalStorage.length; i++) {
+        idProducts.push(produitLocalStorage[i].idProduit);
+    }
+    console.log(idProducts);
 
-//GETTING IDS FROM CACHE AND BREAK UP THE ORDER NUMBER  
-function getIdsFromCache() {
-  const numberOfProducts = localStorage.length
-  const ids = []
-  for (let i = 0; i < numberOfProducts; i++) {
-    const key = localStorage.key(i)
+    const order = {
+        contact: {
+            'firstName': inputFirstName.value,
+            'lastName': inputLastName.value,
+            'address': inputAddress.value,
+            'city': inputCity.value,
+            'email': inputMail.value,
+        },
+        products: idProducts,
+    }
     
-    const id = key.split("-")[0] //split the key to get the id split by "-"
-    ids.push(id)
-  }
-  return ids
+    // sending the information using POST and sending it over to the confirmation page
+    const options = {
+        method: 'POST',
+        body: JSON.stringify(order),
+        headers: {
+            Accept: 'application/json',
+            "Content-Type": "application/json"
+        },
+    };
+
+    fetch("http://localhost:3000/api/products/order", options)
+        .then((response) => response.json())
+        .then((data) => {
+            console.log(data);
+            localStorage.clear();
+            localStorage.setItem("orderId", data.orderId);
+
+            document.location.href = "confirmation.html";
+        })
+        .catch((err) => {
+            alert("Problem with fetch : " + err.message);
+        });
 }
