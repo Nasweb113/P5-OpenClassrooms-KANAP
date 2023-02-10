@@ -1,5 +1,9 @@
 let cartItems = []
 
+const orderButton = document.getElementById("order");
+orderButton.addEventListener("click", (e) => submitForm(e))
+
+
 function retrieveItemsFromCache() {
   const divCart = document.getElementById("cart__items")
 
@@ -13,10 +17,10 @@ function retrieveItemsFromCache() {
     cartItems.push(item)
   }
 
- cartItems.forEach(async(item) => {
+cartItems.forEach(async(item) => {
   let price;
   // get unique product
-  const res = await fetch("http://localhost:3000/api/products/"+ item.id )
+  const res = await fetch("http://localhost:3000/api/products/"+ item.id)
   const data = await res.json()
   price = data.price
   
@@ -64,7 +68,7 @@ function retrieveItemsFromCache() {
  }
 // update quantity
 const changeQuantity = (event)=>{
-  event.preventDefault()//prevents reload the browser on change
+  //event.preventDefault()//prevents reload the browser on  direct change
   const newQty = event.target.value
   
   const id = event.target.id
@@ -74,15 +78,17 @@ const changeQuantity = (event)=>{
   
   const key = `${id}-${newItem.color}`
 
-  // update localstorage
+  // update localstorage with new info
   localStorage.setItem(key, JSON.stringify(newItem))
-  location.reload()
+  
+   window.location.reload()
  }
+
+
 // calculate the total
 (()=>{
   const total = document.getElementById("totalPrice")
   const qtyTotal = document.querySelector("#totalQuantity")
-  console.log(qtyTotal)
   let totalAmount = 0
   let totalQuantity = 0
   cartItems.forEach(async(item)=>{
@@ -90,80 +96,36 @@ const changeQuantity = (event)=>{
     const data = await res.json()
 
     totalAmount += data.price * item.quantity
-    console.log("total", totalAmount)
     total.innerHTML = totalAmount 
     
     totalQuantity += item.quantity
     qtyTotal.innerHTML = totalQuantity
-    
-    console.log("totalQuant", totalQuantity)
-console.log(qtyTotal)
-
   })
 })()
 
 
-  
-
-
-  //Calcul de la quantité totale des articles sélectionés
-   //Calcul de la quantité totale des articles sélectionés
-
-   //Calcul de la quantité totale des articles sélectionés
-
-
-
-
-/*
-function getCart() {
-  let cart = localStorage.getItem("cart");
-console.log(cart)
-  if (cart == null) {
-    return [];
-  } else {
-    return JSON.parse(cart);
-  }
-}
-
-function removeFromCart(item) {
-  let cart = getCart();
-  cart = cart.filter((p) => p.id_color != item.id);
-  saveCart(cart);
-}
-
-function addEvents() {
-  //delete button
-  const buttons = document.querySelector(".deleteItem");
-  buttons.forEach((btn) => {
-    btn.addEventListener("click", () => {
-      itemDeleted(btn.closest("article").getAttribute("data-id"));
-    });
-  });
-}
-  */
-//ERRORS FOR FORM COMPLETION IF INCORRECT :
-
 
 function getForm() {
-    let form = document.querySelector(".cart__order__form");
+  
+    let infoForm = document.querySelector(".cart__order__form");
     let mail = new RegExp('^[a-zA-Z0-9.-_]+[@]{1}[a-zA-Z0-9.-_]+[.]{1}[a-z]{2,10}$');
   let charRegExp = new RegExp("^[a-zA-Z]+$");
   let addressRegExp = new RegExp("^[a-zA-Z0-9 ]+$");
 
     // Ecoute des modifications des éléments du form:
-    form.firstName.addEventListener('change', function () {
+    infoForm.firstName.addEventListener('change', function () {
         validFirstName(this);
     });
-    form.lastName.addEventListener('change', function () {
+    infoForm.lastName.addEventListener('change', function () {
         validLastName(this);
     });
-    form.address.addEventListener('change', function () {
+    infoForm.address.addEventListener('change', function () {
         validAddress(this);
     });
-    form.city.addEventListener('change', function () {
+    infoForm.city.addEventListener('change', function () {
         validCity(this);
     });
-    form.email.addEventListener('change', function () {
+    infoForm.email.addEventListener('change', function () {
         validEmail(this);
     });
 
@@ -216,51 +178,60 @@ function getForm() {
     };
 }
 getForm();
-// recovery of the elements 
-function postForm() {
-    let inputFirstName = document.getElementById('firstName');
-    let inputLastName = document.getElementById('lastName');
-    let inputAddress = document.getElementById('address');
-    let inputCity = document.getElementById('city');
-    let inputMail = document.getElementById('email');
 
-    let idProducts = [];
-    for (let i = 0; i < produitLocalStorage.length; i++) {
-        idProducts.push(produitLocalStorage[i].idProduit);
+function submitForm(e) {
+  e.preventDefault()
+  if (cartItems.length === 0) {
+    alert("Please select items to buy")
+    return
+  }
+
+
+
+  const body = makeRequestBody()
+  fetch("http://localhost:3000/api/products/order", {
+    method: "POST",
+    body: JSON.stringify(body),
+    headers: {
+      "Content-Type": "application/json"
     }
-    console.log(idProducts);
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      const orderId = data.orderId
+      window.location.href = "confirmation.html" + "?orderId=" + orderId
+    })
+    .catch((err) => console.error(err))
+}
 
-    const order = {
-        contact: {
-            'firstName': inputFirstName.value,
-            'lastName': inputLastName.value,
-            'address': inputAddress.value,
-            'city': inputCity.value,
-            'email': inputMail.value,
-        },
-        products: idProducts,
-    }
-    
-    // sending the information using POST and sending it over to the confirmation page
-    const options = {
-        method: 'POST',
-        body: JSON.stringify(order),
-        headers: {
-            Accept: 'application/json',
-            "Content-Type": "application/json"
-        },
-    };
 
-    fetch("http://localhost:3000/api/products/order", options)
-        .then((response) => response.json())
-        .then((data) => {
-            console.log(data);
-            localStorage.clear();
-            localStorage.setItem("orderId", data.orderId);
+function makeRequestBody() {
+  const form = document.querySelector(".cart__order__form")
+  const firstName = form.elements.firstName.value
+  const lastName = form.elements.lastName.value
+  const address = form.elements.address.value
+  const city = form.elements.city.value
+  const email = form.elements.email.value
+  const body = {
+    contact: {
+      firstName: firstName,
+      lastName: lastName,
+      address: address,
+      city: city,
+      email: email
+    },
+    products: getIdsFromCache()
+  }
+  return body
+}
 
-            document.location.href = "confirmation.html";
-        })
-        .catch((err) => {
-            alert("Problem with fetch : " + err.message);
-        });
+function getIdsFromCache() {
+  const numberOfProducts = localStorage.length
+  const ids = []
+  for (let i = 0; i < numberOfProducts; i++) {
+    const key = localStorage.key(i)
+    const id = key.split("-")[0]
+    ids.push(id)
+  }
+  return ids
 }

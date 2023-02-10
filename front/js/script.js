@@ -1,6 +1,7 @@
-fetch("http://localhost:3000/api/products") //using fetch to access URL (used json placeholder template)
+fetch("http://localhost:3000/api/products") 
     .then((res) => res.json())
     .then((sofa) => addProducts(sofa))
+    //using fetch to access URL (used json placeholder template)
     //it fetches the info and passes by Add products-->
     //it recoveres the info from index 0 in the array 
     //it calls the makeAnchor function and calls the image url and creates the <a></a> anchor element
