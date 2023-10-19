@@ -1,61 +1,27 @@
 const orderId = getOrderId()
-displayOrderIdNumber(orderId)
-cleanUpOrder()
+displayOrderId(orderId)
+const clearCache = wipeLocalStorage()
 
-//GRABBING ORDER ID
 function getOrderId() {
-const str = window.location.search
-const urlParams = new URLSearchParams(str)
+const queryString = window.location.search
+const urlParams = new URLSearchParams(queryString)
 return urlParams.get("orderId")
+
 }
 
+console.log(orderId)
 
-//DISPLAY ORDER NUMBER ON CONFIRMATION PAGE
-function displayOrderIdNumber(orderId) {
+function displayOrderId(orderId) {
 const orderIdElement = document.querySelector("#orderId")
-orderIdElement.innerHTML = orderId}
+orderIdElement.innerHTML = orderId
+}
 
-//EMPTY LOCAL STORAGE
-function cleanUpOrder() {
-localStorage.clear()
+function wipeLocalStorage() {
+  const cache = window.localStorage
+  cache.clear()
 }
 
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*const orderId = getOrderId()
-displayOrderIdNumber(orderId)
-//cleanUpOrder()
-
-//GRABBING ORDER ID
-function getOrderId() {
-const str = window.location.search
-const urlParams = new URLSearchParams(str)
-return urlParams.get("orderId")
-}
-
-
-//DISPLAY ORDER NUMBER ON CONFIRMATION PAGE
-function displayOrderIdNumber(orderId) {
-const orderIdElement = document.querySelector("#orderId")
-orderIdElement.innerHTML = orderId}
-
-/*EMPTY LOCAL STORAGE
-function cleanUpOrder() {
-localStorage.clear()
-}*/

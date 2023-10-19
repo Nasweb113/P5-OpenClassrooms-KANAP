@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
 //************   SHOPPING CART       ***********/
 
@@ -18,8 +19,61 @@ function retrieveItemsFromCache() {
     const item = localStorage.getItem(localStorage.key(i)) || ""
     const itemObject = JSON.parse(item)
     cart.push(itemObject)
+=======
+let cartItems = []
+
+const orderButton = document.getElementById("order");
+orderButton.addEventListener("click", (e) => submitForm(e))
+
+
+function retrieveItemsFromCache() {
+  const divCart = document.getElementById("cart__items")
+
+
+  let keys = Object.keys(localStorage)
+  let i = keys.length
+
+  while(i--){
+    const key = keys[i]
+    const item = JSON.parse(localStorage.getItem(key))
+    cartItems.push(item)
+>>>>>>> a5ea55180cda05021dfb55a1e13fce2aee3c50c4
   }
+
+cartItems.forEach(async(item) => {
+  let price;
+  // get unique product
+  const res = await fetch("http://localhost:3000/api/products/"+ item.id)
+  const data = await res.json()
+  price = data.price
+  
+  // display product details
+  divCart.innerHTML += `
+  <article class="cart__item" data-id=${item.id} data-color=${item.color}>
+            <div class="cart__item__img">
+              <img src=${item.imageUrl} alt="Photo of a sofa">
+            </div>
+            <div class="cart__item__content">
+              <div class="cart__item__content__description">
+                <h2>${item.name}</h2>
+                <p>${item.color}</p>
+                <p>${"€"+price}</p>
+              </div>
+              <div class="cart__item__content__settings">
+                <div class="cart__item__content__settings__quantity">
+                  <input type="number" class="itemQuantity" id=${item.id} onchange="changeQuantity(event)" name="itemQuantity" min="1" max="100" value=${item.quantity}>
+                </div>
+                <div class="cart__item__content__settings__delete">
+                <p class="deleteItem" id=${item.id} onclick="deleteItem(event)">Delete</p>
+                  
+                </div>
+              </div>
+            </div>
+          </article> 
+`
+ });
 }
+<<<<<<< HEAD
 // Function to display a single item in the cart.
 function displayItem(item) {
   // Create an article element for the item.
@@ -139,9 +193,37 @@ function updatePriceAndQuantity(id, newValue, item) {
 // Function to delete item data from the browser's local storage.
 function deleteDataFromCache(item) {
   const key = `${item.id}-${item.color}`
-  localStorage.removeItem(key)
-}
+=======
 
+// load carts
+ retrieveItemsFromCache()
+// delete item
+ const deleteItem = (event)=>{
+  event.preventDefault()//prevents reload the browser on change
+  const id = event.target.id
+
+  const findItem = cartItems.find((item)=>item.id === id)
+
+  const key = `${id}-${findItem.color}`
+
+  // remove item from localstorage
+>>>>>>> a5ea55180cda05021dfb55a1e13fce2aee3c50c4
+  localStorage.removeItem(key)
+  location.reload()
+ }
+// update quantity
+const changeQuantity = (event)=>{
+  //event.preventDefault()//prevents reload the browser on  direct change
+  const newQty = event.target.value
+  
+  const id = event.target.id
+  
+  const findItem = cartItems.find((item)=>item.id === id)
+  const newItem = {...findItem, quantity: parseInt(newQty)}
+  
+  const key = `${id}-${newItem.color}`
+
+<<<<<<< HEAD
 // Function to save item data to the browser's local storage.
 function saveNewDataToCache(item) {
   const dataToSave = JSON.stringify(item)
@@ -161,13 +243,34 @@ function makeDescription(item) {
   p.textContent = item.color
   const p2 = document.createElement("p")
   p2.textContent = item.price + " €"
+=======
+  // update localstorage with new info
+  localStorage.setItem(key, JSON.stringify(newItem))
+  
+   window.location.reload()
+ }
 
-  description.appendChild(h2)
-  description.appendChild(p)
-  description.appendChild(p2)
-  return description
-}
 
+// calculate the total
+(()=>{
+  const total = document.getElementById("totalPrice")
+  const qtyTotal = document.querySelector("#totalQuantity")
+  let totalAmount = 0
+  let totalQuantity = 0
+  cartItems.forEach(async(item)=>{
+    const res = await fetch("http://localhost:3000/api/products/"+ item.id )
+    const data = await res.json()
+>>>>>>> a5ea55180cda05021dfb55a1e13fce2aee3c50c4
+
+    totalAmount += data.price * item.quantity
+    total.innerHTML = totalAmount 
+    
+    totalQuantity += item.quantity
+    qtyTotal.innerHTML = totalQuantity
+  })
+})()
+
+<<<<<<< HEAD
 // Function to display an article (cart item) on the webpage.
 function displayArticle(article) {
   document.querySelector("#cart__items").appendChild(article)
@@ -193,10 +296,87 @@ function makeImageDiv(item) {
   image.alt = item.altTxt
   div.appendChild(image)
   return div
+=======
+
+
+function getForm() {
+  
+    let infoForm = document.querySelector(".cart__order__form");
+    let mail = new RegExp('^[a-zA-Z0-9.-_]+[@]{1}[a-zA-Z0-9.-_]+[.]{1}[a-z]{2,10}$');
+  let charRegExp = new RegExp("^[a-zA-Z]+$");
+  let addressRegExp = new RegExp("^[a-zA-Z0-9 ]+$");
+
+    // Ecoute des modifications des éléments du form:
+    infoForm.firstName.addEventListener('change', function () {
+        validFirstName(this);
+    });
+    infoForm.lastName.addEventListener('change', function () {
+        validLastName(this);
+    });
+    infoForm.address.addEventListener('change', function () {
+        validAddress(this);
+    });
+    infoForm.city.addEventListener('change', function () {
+        validCity(this);
+    });
+    infoForm.email.addEventListener('change', function () {
+        validEmail(this);
+    });
+
+    // Validating the form:
+    const validFirstName = function (inputFirstName) {
+        let firstNameAlertError = inputFirstName.nextElementSibling;
+        if (charRegExp.test(inputFirstName.value)) {
+            firstNameAlertError.innerHTML = '';
+        } else {
+            firstNameAlertError.innerHTML = 'Invalid First Name';
+        }
+    };
+    const validLastName = function (inputLastName) {
+        let lastNameAlertError = inputLastName.nextElementSibling;
+        if (charRegExp.test(inputLastName.value)) {
+            lastNameAlertError.innerHTML = '';
+        } else {
+            lastNameAlertError.innerHTML = 'Invalid Last Name';
+        }
+    };
+     //address validation
+    const validAddress = function(inputAddress) {
+      let addressErrorMsg = inputAddress.nextElementSibling;
+
+      if (addressRegExp.test(inputAddress.value)) {
+          addressErrorMsg.innerHTML = '';
+      } else {
+          addressErrorMsg.innerHTML = 'Please enter a valid address';
+      }
+  };
+
+  //city validation
+  const validCity = function(inputCity) {
+      let cityErrorMsg = inputCity.nextElementSibling;
+
+      if (charRegExp.test(inputCity.value)) {
+          cityErrorMsg.innerHTML = '';
+      } else {
+          cityErrorMsg.innerHTML = 'Please enter a valid city';
+      }
+  };
+
+  const validEmail = function (inputEmail) {
+    let emailAlertError = inputEmail.nextElementSibling;
+    if (mail.test(inputEmail.value)) {
+        emailAlertError.innerHTML = '';
+    } else {
+        emailAlertError.innerHTML = 'Email invalid';
+    }
+    };
+>>>>>>> a5ea55180cda05021dfb55a1e13fce2aee3c50c4
 }
+getForm();
 
 // Function to handle form submission when the user clicks the "Order" button.
 function submitForm(e) {
+<<<<<<< HEAD
   e.preventDefault(); // Prevent the default form submission behavior.
 
   if (cart.length === 0) {
@@ -206,6 +386,15 @@ function submitForm(e) {
 
   if (isFormInvalid()) return; // Check if the form is invalid and exit if it is.
   if (isEmailInvalid()) return; // Check if the email is invalid and exit if it is.
+=======
+  e.preventDefault()
+  if (cartItems.length === 0) {
+    alert("Please select items to buy")
+    return
+  }
+
+
+>>>>>>> a5ea55180cda05021dfb55a1e13fce2aee3c50c4
 
   // Prepare the request body, send a POST request to the server, and handle the response.
   const body = makeRequestBody();
@@ -218,6 +407,7 @@ function submitForm(e) {
   })
     .then((res) => res.json())
     .then((data) => {
+<<<<<<< HEAD
       const orderId = data.orderId;
       window.location.href = "confirmation.html" + "?orderId=" + orderId; // Redirect to the confirmation page.
       return console.log(data); // Log the response data.
@@ -308,6 +498,14 @@ function getForm() {
       addressErrorMsg.innerHTML = 'Please enter a valid address';
     }
   };
+=======
+      const orderId = data.orderId
+      window.location.href = "confirmation.html" + "?orderId=" + orderId
+    })
+    .catch((err) => console.error(err))
+}
+
+>>>>>>> a5ea55180cda05021dfb55a1e13fce2aee3c50c4
 
   // Function for validating the city input.
   const validCity = function(inputCity) {
@@ -358,9 +556,29 @@ function makeRequestBody() {
       lastName: lastName,
       address: address,
       city: city,
+<<<<<<< HEAD
       email: email,
     },
     products: getIdsFromCache(),
   };
   return body;
 }
+=======
+      email: email
+    },
+    products: getIdsFromCache()
+  }
+  return body
+}
+
+function getIdsFromCache() {
+  const numberOfProducts = localStorage.length
+  const ids = []
+  for (let i = 0; i < numberOfProducts; i++) {
+    const key = localStorage.key(i)
+    const id = key.split("-")[0]
+    ids.push(id)
+  }
+  return ids
+}
+>>>>>>> a5ea55180cda05021dfb55a1e13fce2aee3c50c4
