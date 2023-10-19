@@ -1,55 +1,60 @@
-/* The following function iterates over the local storage keys and gets the value set for each key:
-use .length to find the number of items
-for (let i = 0; i < localStorage.length; i++) {
-  console.log(localStorage.getItem(localStorage.key(i)));
-}
-*/
 
-// using RegEX to validate the form
+//************   SHOPPING CART       ***********/
+
+
+// Initialize an empty shopping cart array.
 const cart = []
-
+// Retrieve items from the browser's local storage and add them to the cart.
 retrieveItemsFromCache()
 cart.forEach((item) => displayItem(item))
-
+// Find the "Order" button in the HTML and add a click event listener to submit the form.
 const orderButton = document.querySelector("#order")
 orderButton.addEventListener("click", (e) => submitForm(e))
-
+// Function to retrieve items from local storage and populate the cart.
 function retrieveItemsFromCache() {
   const numberOfItems = localStorage.length
   for (let i = 0; i < numberOfItems; i++) {
+    // Retrieve item data from local storage, parse it, and add it to the cart.
     const item = localStorage.getItem(localStorage.key(i)) || ""
     const itemObject = JSON.parse(item)
     cart.push(itemObject)
   }
 }
-
+// Function to display a single item in the cart.
 function displayItem(item) {
+  // Create an article element for the item.
   const article = makeArticle(item)
+  // Create a div for the item's image and append it to the article.
   const imageDiv = makeImageDiv(item)
+   // Create and append the item's content (description and settings) to the article.
   article.appendChild(imageDiv)
+  // Display the article on the page.
   const cardItemContent = makeCartContent(item)
+  // Update the total quantity and total price displayed on the page.
   article.appendChild(cardItemContent)
   displayArticle(article)
   displayTotalQuantity()
   displayTotalPrice()
 }
-
+// Function to display the total quantity of items in the cart.
 function displayTotalQuantity() {
   const totalQuantity = document.querySelector("#totalQuantity")
+   // Calculate the total quantity by summing the quantities of all items in the cart.
   const total = cart.reduce((total, item) => total + item.quantity, 0)
   totalQuantity.textContent = total
 }
-
+// Function to display the total price of items in the cart.
 function displayTotalPrice() {
   const totalPrice = document.querySelector("#totalPrice")
+  // Calculate the total price by summing the individual prices multiplied by their quantities
   const total = cart.reduce((total, item) => total + item.price * item.quantity, 0)
   totalPrice.textContent = total
 }
-
+// Function to create the content (description and settings) of a cart item.
 function makeCartContent(item) {
   const cardItemContent = document.createElement("div")
   cardItemContent.classList.add("cart__item__content")
-
+// Create the description and settings elements for the item and append them to the content.
   const description = makeDescription(item)
   const settings = makeSettings(item)
 
@@ -57,19 +62,20 @@ function makeCartContent(item) {
   cardItemContent.appendChild(settings)
   return cardItemContent
 }
-
+// Function to create and set up the settings for a cart item.
 function makeSettings(item) {
   const settings = document.createElement("div")
   settings.classList.add("cart__item__content__settings")
-
+// Add quantity input and delete button to the settings.
   addQuantityToSettings(settings, item)
   addDeleteToSettings(settings, item)
   return settings
 }
-
+// Function to add a delete button to the settings and set up its click event.
 function addDeleteToSettings(settings, item) {
   const div = document.createElement("div")
   div.classList.add("cart__item__content__settings__delete")
+  // Add a click event listener to the delete button, which removes the item.
   div.addEventListener("click", () => deleteItem(item))
 
   const p = document.createElement("p")
@@ -77,23 +83,28 @@ function addDeleteToSettings(settings, item) {
   div.appendChild(p)
   settings.appendChild(div)
 }
+// Function to delete an item from the cart, local storage, and the page.
 function deleteItem(item) {
+  // Find the index of the item in the cart based on its id and color.
   const itemToDelete = cart.findIndex(
     (product) => product.id === item.id && product.color === item.color
   )
+  // Remove the item from the cart and update the displayed total price and quantity.
   cart.splice(itemToDelete, 1)
   displayTotalPrice()
   displayTotalQuantity()
+  // Remove the item's data from local storage and its corresponding article from the page.
   deleteDataFromCache(item)
   deleteArticleFromPage(item)
 }
+// Function to delete an article (item) from the page based on its id and color.
 function deleteArticleFromPage(item) {
   const articleToDelete = document.querySelector(
     `article[data-id="${item.id}"][data-color="${item.color}"]`
   )
   articleToDelete.remove()
 }
-
+// Function to add a quantity input field to the settings and set up its change event.
 function addQuantityToSettings(settings, item) {
   const quantity = document.createElement("div")
   quantity.classList.add("cart__item__content__settings__quantity")
@@ -107,36 +118,43 @@ function addQuantityToSettings(settings, item) {
   input.min = "1"
   input.max = "100"
   input.value = item.quantity
+  // Add an input event listener to update the item's quantity and total price when the value changes.
   input.addEventListener("input", () => updatePriceAndQuantity(item.id, input.value, item))
 
   quantity.appendChild(input)
   settings.appendChild(quantity)
 }
-
+// Function to update the item's quantity and total price when the quantity input changes.
 function updatePriceAndQuantity(id, newValue, item) {
+   // Find the item to update in the cart and update its quantity.
   const itemToUpdate = cart.find((item) => item.id === id)
   itemToUpdate.quantity = Number(newValue)
   item.quantity = itemToUpdate.quantity
+  // Update the displayed total quantity and total price, and save the updated data to local storage
   displayTotalQuantity()
   displayTotalPrice()
   saveNewDataToCache(item)
 }
 
+// Function to delete item data from the browser's local storage.
 function deleteDataFromCache(item) {
   const key = `${item.id}-${item.color}`
   localStorage.removeItem(key)
 }
 
+// Function to save item data to the browser's local storage.
 function saveNewDataToCache(item) {
   const dataToSave = JSON.stringify(item)
   const key = `${item.id}-${item.color}`
   localStorage.setItem(key, dataToSave)
 }
 
+// Function to create and set up the description element for a cart item.
 function makeDescription(item) {
   const description = document.createElement("div")
   description.classList.add("cart__item__content__description")
 
+  // Create and add elements like h2 (name), p (color), and p2 (price) to the description.
   const h2 = document.createElement("h2")
   h2.textContent = item.name
   const p = document.createElement("p")
@@ -150,9 +168,12 @@ function makeDescription(item) {
   return description
 }
 
+// Function to display an article (cart item) on the webpage.
 function displayArticle(article) {
   document.querySelector("#cart__items").appendChild(article)
 }
+
+// Function to create and set up the article element for a cart item.
 function makeArticle(item) {
   const article = document.createElement("article")
   article.classList.add("card__item")
@@ -160,10 +181,13 @@ function makeArticle(item) {
   article.dataset.color = item.color
   return article
 }
+
+// Function to create and set up the image div for a cart item.
 function makeImageDiv(item) {
   const div = document.createElement("div")
   div.classList.add("cart__item__img")
 
+  // Create and add an image element, setting its source and alt text.
   const image = document.createElement("img")
   image.src = item.imageUrl
   image.alt = item.altTxt
@@ -171,17 +195,20 @@ function makeImageDiv(item) {
   return div
 }
 
+// Function to handle form submission when the user clicks the "Order" button.
 function submitForm(e) {
-  e.preventDefault()
+  e.preventDefault(); // Prevent the default form submission behavior.
+
   if (cart.length === 0) {
-    alert("Please select items to buy")
-    return
+    alert("Please select items to buy"); // Display an alert if the cart is empty.
+    return; // Exit the function to prevent further execution.
   }
 
-  if (isFormInvalid()) return
-  if (isEmailInvalid()) return
+  if (isFormInvalid()) return; // Check if the form is invalid and exit if it is.
+  if (isEmailInvalid()) return; // Check if the email is invalid and exit if it is.
 
-  const body = makeRequestBody()
+  // Prepare the request body, send a POST request to the server, and handle the response.
+  const body = makeRequestBody();
   fetch("http://localhost:3000/api/products/order", {
     method: "POST",
     body: JSON.stringify(body),
@@ -191,42 +218,51 @@ function submitForm(e) {
   })
     .then((res) => res.json())
     .then((data) => {
-      const orderId = data.orderId
-      window.location.href = "confirmation.html" + "?orderId=" + orderId
-      return console.log(data)
+      const orderId = data.orderId;
+      window.location.href = "confirmation.html" + "?orderId=" + orderId; // Redirect to the confirmation page.
+      return console.log(data); // Log the response data.
     })
-    //show an error if page doesn't load
-    .catch((err) => console.error(err))
+    .catch((err) => console.error(err)); // Handle any errors during the fetch request.
 }
 
+// Function to check if the entered email is invalid.
 function isEmailInvalid() {
-  const email = document.querySelector("#email").value
-  const regex = /^[A-Za-z0-9+_.-]+@(.+)$/
+  const email = document.querySelector("#email").value;
+  const regex = /^[A-Za-z0-9+_.-]+@(.+)$/;
+
   if (regex.test(email) === false) {
-    alert("Please enter valid email")
-    return true
+    alert("Please enter a valid email"); // Display an alert for an invalid email.
+    return true; // Return true to indicate the email is invalid.
   }
-  return false
+
+  return false; // Return false if the email is valid.
 }
 
+// Function to check if the form has empty input fields.
 function isFormInvalid() {
-  const form = document.querySelector(".cart__order__form")
-  const inputs = form.querySelectorAll("input")
+  const form = document.querySelector(".cart__order__form");
+  const inputs = form.querySelectorAll("input");
+
   inputs.forEach((input) => {
     if (input.value === "") {
-      alert("Please fill all the fields")
-      return true
+      alert("Please fill all the fields"); // Display an alert for empty fields.
+      return true; // Return true to indicate the form is invalid.
     }
-    return false
-  })
+    return false; // Return false if all fields are filled.
+  });
 }
+
+
+// Function to retrieve the form element and set up input validation.
 function getForm() {
   const form = document.querySelector(".cart__order__form");
-  
-  let emailRegExp = new RegExp("^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$");
+
+  // Regular expressions for input validation.
+  let emailRegExp = new RegExp("^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,4}$");
   let charRegExp = new RegExp("^[a-zA-Z]+$");
   let addressRegExp = new RegExp("^[a-zA-Z0-9 ]+$");
 
+  // Event listeners for input fields and their respective validation functions.
   form.firstName.addEventListener('change', function() {
     validFirstName(this);
   });
@@ -242,95 +278,89 @@ function getForm() {
   form.email.addEventListener('change', function() {
     validEmail(this);
   });
-  // Name validation
+
+  // Function for validating the first name input.
   const validFirstName = function(inputFirstName) {
     let firstNameErrorMessage = inputFirstName.nextElementSibling;
     if (charRegExp.test(inputFirstName.value)) {
       firstNameErrorMessage.innerHTML = "";
-      
     } else {
       firstNameErrorMessage.innerHTML = "Please enter a valid first name";
-      
     }
   };
-      //surname validation
-      const validLastName = function(inputLastName) {
-        let lastNameErrorMsg = inputLastName.nextElementSibling;
 
-        if (charRegExp.test(inputLastName.value)) {
-            lastNameErrorMsg.innerHTML = '';
-        } else {
-            lastNameErrorMsg.innerHTML = 'Please enter a valid last name';
-        }
-    };
-
-    //address validation
-    const validAddress = function(inputAddress) {
-        let addressErrorMsg = inputAddress.nextElementSibling;
-
-        if (addressRegExp.test(inputAddress.value)) {
-            addressErrorMsg.innerHTML = '';
-        } else {
-            addressErrorMsg.innerHTML = 'Please enter a valid address';
-        }
-    };
-
-    //city validation
-    const validCity = function(inputCity) {
-        let cityErrorMsg = inputCity.nextElementSibling;
-
-        if (charRegExp.test(inputCity.value)) {
-            cityErrorMsg.innerHTML = '';
-        } else {
-            cityErrorMsg.innerHTML = 'Please enter a valid city';
-        }
-    };
-
-    //email validation
-    const validEmail = function(inputEmail) {
-        let emailErrorMsg = inputEmail.nextElementSibling;
-
-        if (emailRegExp.test(inputEmail.value)) {
-            emailErrorMsg.innerHTML = '';
-        } else {
-            emailErrorMsg.innerHTML = 'Please enter a valid email';
-        }
-        
-    };
-    return(form);
+  // Function for validating the last name input.
+  const validLastName = function(inputLastName) {
+    let lastNameErrorMsg = inputLastName.nextElementSibling;
+    if (charRegExp.test(inputLastName.value)) {
+      lastNameErrorMsg.innerHTML = '';
+    } else {
+      lastNameErrorMsg.innerHTML = 'Please enter a valid last name';
     }
-    getIdsFromCache()
+  };
 
-//MAKING REQUEST BODY
+  // Function for validating the address input.
+  const validAddress = function(inputAddress) {
+    let addressErrorMsg = inputAddress.nextElementSibling;
+    if (addressRegExp.test(inputAddress.value)) {
+      addressErrorMsg.innerHTML = '';
+    } else {
+      addressErrorMsg.innerHTML = 'Please enter a valid address';
+    }
+  };
 
+  // Function for validating the city input.
+  const validCity = function(inputCity) {
+    let cityErrorMsg = inputCity.nextElementSibling;
+    if (charRegExp.test(inputCity.value)) {
+      cityErrorMsg.innerHTML = '';
+    } else {
+      cityErrorMsg.innerHTML = 'Please enter a valid city';
+    }
+  };
+
+  // Function for validating the email input.
+  const validEmail = function(inputEmail) {
+    let emailErrorMsg = inputEmail.nextElementSibling;
+    if (emailRegExp.test(inputEmail.value)) {
+      emailErrorMsg.innerHTML = '';
+    } else {
+      emailErrorMsg.innerHTML = 'Please enter a valid email';
+    }
+  };
+
+  return form;
+}
+
+// Function to get product IDs from local storage.
+function getIdsFromCache() {
+  const numberOfProducts = localStorage.length;
+  const ids = [];
+  for (let i = 0; i < numberOfProducts; i++) {
+    const key = localStorage.key(i);
+    const id = key.split("-")[0]; // Split the key to get the product ID.
+    ids.push(id);
+  }
+  return ids;
+}
+
+// Function to create the request body for submitting the order.
 function makeRequestBody() {
-  const form = document.querySelector(".cart__order__form")
-  const firstName = form.elements.firstName.value
-  const lastName = form.elements.lastName.value
-  const address = form.elements.address.value
-  const city = form.elements.city.value
-  const email = form.elements.email.value
+  const form = document.querySelector(".cart__order__form");
+  const firstName = form.elements.firstName.value;
+  const lastName = form.elements.lastName.value;
+  const address = form.elements.address.value;
+  const city = form.elements.city.value;
+  const email = form.elements.email.value;
   const body = {
     contact: {
-    firstName: firstName,
-    lastName: lastName,
-    address: address,
-    city: city,
-    email: email, 
-  },
-  products: getIdsFromCache()
-}
-return(body)
-}
-//GETTING IDS FROM CACHE
-function getIdsFromCache() {
-  const numberOfProducts = localStorage.length
-  const ids = []
-  for (let i = 0; i < numberOfProducts; i++) {
-    const key = localStorage.key(i)
-    
-    const id = key.split("-")[0] //split the key to get the id split by "-"
-    ids.push(id)
-  }
-  return ids
+      firstName: firstName,
+      lastName: lastName,
+      address: address,
+      city: city,
+      email: email,
+    },
+    products: getIdsFromCache(),
+  };
+  return body;
 }
